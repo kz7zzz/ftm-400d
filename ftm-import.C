@@ -324,10 +324,10 @@ static void processDoc(xmlDoc * doc, unsigned char * data) {
 
 		if (chn->bank < 2) {
             d = &data[Channel::CHANNEL_TOP_OFFSET + (slot * Channel::CHANNEL_SIZE)];
-            s = &data[Channel::STRING_TOP_OFFSET + (slot * Channel::STRING_SIZE)];
+            s = &data[Channel::CHANNEL_TOP_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
 		} else {
             d = &data[Channel::CHANNEL_BOT_OFFSET + (slot * Channel::CHANNEL_SIZE)];
-            s = &data[Channel::STRING_BOT_OFFSET + (slot * Channel::STRING_SIZE)];
+            s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
 		}
 
 		encodeChannel(chn.get(), d, s);

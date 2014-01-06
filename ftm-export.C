@@ -27,11 +27,12 @@ void dumpChannel(
     size_t bank,
     size_t slot,
     const unsigned char * c,
-    const unsigned char * s)
+    const unsigned char * s,
+	bool home = false)
 {
     string station = data2str(s, Channel::STRING_SIZE);
 
-    if (!(c[0] & 0x80U)) return; /* not programmed */
+    if (!home && !(c[0] & 0x80U)) return; /* not programmed */
 
     bool skip = c[0] & 0x20U;
 
@@ -145,14 +146,20 @@ int main(int argc, char *argv[])
 
     for (size_t i=0; i<Channel::NCHANNELS; ++i) {
 	    unsigned char * d = &data[Channel::CHANNEL_TOP_OFFSET + (i * Channel::CHANNEL_SIZE)];
-	    unsigned char * s = &data[Channel::STRING_TOP_OFFSET + (i * Channel::STRING_SIZE)];
+	    unsigned char * s = &data[Channel::CHANNEL_TOP_STRING_OFFSET + (i * Channel::STRING_SIZE)];
 	    dumpChannel(1, i+1, d, s);
     }
 
     for (size_t i=0; i<Channel::NCHANNELS; ++i) { // bottom
 	    unsigned char * d = &data[Channel::CHANNEL_BOT_OFFSET + (i * Channel::CHANNEL_SIZE)];
-	    unsigned char * s = &data[Channel::STRING_BOT_OFFSET + (i * Channel::STRING_SIZE)];
+	    unsigned char * s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (i * Channel::STRING_SIZE)];
 	    dumpChannel(2, i+1, d, s);
+    }
+
+    for (size_t i=0; i<2; ++i) {
+	    unsigned char * d = &data[Channel::HOME_OFFSET + (i * Channel::CHANNEL_SIZE)];
+	    unsigned char * s = &data[Channel::HOME_STRING_OFFSET + (i * Channel::STRING_SIZE)];
+	    dumpChannel(3, i+1, d, s);
     }
 
     cout  << "</channels>" << endl;

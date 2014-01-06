@@ -25,9 +25,10 @@ resource.rc
 *.tmp
 *.out
 
-tests/*.hex
-tests/*.xml
+tests/*/*.hex
+tests/*/*.xml
 
 ftm-import
 ftm-export
 ftm-strings
+ftm-test

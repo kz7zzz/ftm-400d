@@ -48,24 +48,32 @@ int main(int argc, char *argv[])
 
 	ssize_t pos = -1;
 	std::string s;
+	int n = 0;
 
 	// strings
 	for (size_t i=0; i<datalen; ++i) {
 		unsigned char c = data[i];
-		if ((i < 0x0200 || i >= 0x42B0) && (d2a[c] == c || c < 127)) {
-			s.append(1, d2a[c]);
+		unsigned char a = d2a[c];
+		if ((i < 0x0200 || i >= 0x42B0) && a) {
+			if (a < 0x80) {
+			    s.append(1, a);
+			} else {
+			    s.append(utf8[a - 0x80]);
+			}
+			n++;
 
 		} else {
-			if (s.length() > 2) {
+			if (n > 2) {
 				cout << std::hex << pos+1;
 				cout << ": " << s << endl;
 			}
 			s.erase();
+			n=0;
 			pos = i;
 		}
 	}
 
-	if (s.length() > 3) {
+	if (n > 2) {
 		cout << std::hex << pos+1;
 		cout << ": " << s << endl;
 	}
