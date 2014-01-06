@@ -19,9 +19,9 @@ Usage:
 Copy MEMFTM400D.dat from SD Card to local working directory,
 name local copy old.dat.
 
-% ftm-export old.dat > channels.xml
+% ./ftm-export old.dat > channels.xml
   edit channels.xml (suggest using an XML schema-aware editor)
-% ftm-import channels.xml old.dat new.dat > channels.xml
+% ./ftm-import channels.xml old.dat new.dat > channels.xml
 
 Install new.dat as MEMFTM400D.dat on SD Card.
 
