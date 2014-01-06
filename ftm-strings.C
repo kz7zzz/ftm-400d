@@ -17,67 +17,56 @@
 #include <fstream>
 #include <vector>
 
-using namespace std;
+#include "ftm.h"
 
-static const char d2a[] =
-    "0123456789ABCDEF"
-    "GHIJKLMNOPQRSTUV"
-    "WXYZabcdefghijkl"
-    "mnopqrstuvwxyz|\""
-    "#$#&'()*,-./:;##"
-    "##?@############"
-    "#### ###########";
+using namespace std;
 
 int main(int argc, char *argv[])
 {
-    const char * datafile = argv[1];
+	const char * datafile = argv[1];
 
-    ifstream is;
-    off_t datalen;
+	ifstream is;
+	off_t datalen;
 
-    is.open(datafile, ios::binary);
-    if (!is.is_open()) {
-	cerr << "Failed to open " << datafile << " for input." << endl;
-	exit(1);
-    }
+	is.open(datafile, ios::binary);
+	if (!is.is_open()) {
+		cerr << "Failed to open " << datafile << " for input." << endl;
+		exit(1);
+	}
 
-    is.seekg(0, ios::end);
-    datalen = is.tellg();
-    std::vector<unsigned char> data(datalen);
+	is.seekg(0, ios::end);
+	datalen = is.tellg();
+	std::vector<unsigned char> data(datalen);
 
-    is.seekg(0, ios::beg);
-    is.read(reinterpret_cast<char *>(&data[0]), datalen);
-    is.close();
+	is.seekg(0, ios::beg);
+	is.read(reinterpret_cast<char *>(&data[0]), datalen);
+	is.close();
 
-    if (datalen != 25600) {
-	cout << "Bad data len: " << datalen << endl;
-    }
+	if (datalen != 25600) {
+		cout << "Bad data len: " << datalen << endl;
+	}
 
-    ssize_t pos = -1;
-    std::string s;
+	ssize_t pos = -1;
+	std::string s;
 
-    // strings
-    for (size_t i=0; i<datalen; ++i) {
-	unsigned char c = data[i];
-	if ((i < 0x0200 || i >= 0x42B0) && ((c < sizeof(d2a)) || c == 191)) {
-	    if (c == 191) {
-	        s.append(1, '0');
-	    } else {
-	        s.append(1, d2a[c]);
-	    }
+	// strings
+	for (size_t i=0; i<datalen; ++i) {
+		unsigned char c = data[i];
+		if ((i < 0x0200 || i >= 0x42B0) && (d2a[c] == c || c < 127)) {
+			s.append(1, d2a[c]);
 
-	} else {
-	    if (s.length() > 2) {
+		} else {
+			if (s.length() > 2) {
+				cout << std::hex << pos+1;
+				cout << ": " << s << endl;
+			}
+			s.erase();
+			pos = i;
+		}
+	}
+
+	if (s.length() > 3) {
 		cout << std::hex << pos+1;
 		cout << ": " << s << endl;
-	    }
-	    s.erase();
-	    pos = i;
 	}
-    }
-
-    if (s.length() > 3) {
-	cout << std::hex << pos+1;
-	cout << ": " << s << endl;
-    }
 }

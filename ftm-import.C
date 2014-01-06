@@ -30,100 +30,9 @@
 
 using namespace std;
 
-static const char * tones[] = {
-    "67.0", "69.3", "71.9", "74.4", "77.0", "79.7", "82.5", "85.4",
-    "88.5", "91.5", "94.8", "97.4", "100.0", "103.5", "107.2", "110.9",
-
-    "114.8", "118.8", "123.0", "127.3", "131.8", "136.5", "141.3", "146.2",
-    "151.4", "156.7", "162.2", "167.9", "173.8", "179.9", "186.2", "192.8",
-
-    "203.5", "206.5", "210.7", "218.1", "225.7", "229.1", "233.6", "241.8", 
-    "250.3", "254.1"
-};
-
-static const char * dcsCodes[] = {
-    NULL /* no DCS */,
-    "023", "025", "026", "031", "032", "043", "047", "051",
-    "054", "065", "071", "072", "073", "074", "114", "115",
-    "116", "125", "131", "132", "134", "143", "152", "155",
-    "156", "162", "165", "172", "174", "205", "223", "226",
-    "243", "244", "245", "251", "261", "263", "265", "271",
-    "306", "311", "315", "331", "343", "345", "351", "364",
-    "365", "371", "411", "412", "413", "423", "431", "432",
-    "445", "464", "465", "466", "503", "506", "516", "532",
-    "546", "565", "606", "612", "624", "627", "631", "632",
-    "654", "662", "664", "703", "712", "723", "731", "732",
-    "734", "743", "754", NULL
-};
-
-// symbols supported.  (note: # is used as a fill character here (not the radio))
-static const char d2a[] =
-    "0123456789ABCDEF"
-    "GHIJKLMNOPQRSTUV"
-    "WXYZabcdefghijkl"
-    "mnopqrstuvwxyz|\""
-    "#$#&'()*,-./:;##"
-    "##?@############"
-    "#### ###########";
-
-static const unsigned char a2d[] = {
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-
-   100,  0, 63,  0, 65,  0, 67, 68,
-	69, 70, 71,  0, 72, 73, 74, 75,
-   191,  1,  2,  3,  4,  5,  6,  7,
-	 8,  9, 76, 77,  0,  0,  0, 82,
-
-	83, 10, 11, 12, 13, 14, 15, 16,
-	17, 18, 19, 20, 21, 22, 23, 24,
-	25, 26, 27, 28, 29, 30, 31, 32,
-	33, 34, 35, 0, 0, 0, 0, 0,
-
-	 0, 36, 37, 38, 39, 40, 41, 42,
-    43, 44, 45, 46, 47, 48, 49, 50,
-	51, 52, 53, 54, 55, 56, 57, 58,
-	59, 60, 61,  0, 62,  0,  0,  0,
-
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0,
-	 0,  0,  0,  0,  0,  0,  0,  0
-};
-
-static void str2data(const std::string & str, unsigned char * sbuf) {
-	for (int i=0; i < str.length(); i++) {
-		sbuf[i] = a2d[str[i]];
-		assert(sbuf[i]);
-
-		if (d2a[sbuf[i]] != str[i]) {
-			cerr << "Error: '" << str[i] << "' -> " << (int) a2d[str[i]] << " -> '" << d2a[a2d[str[i]]] << "'" << endl;
-		}
-
-		assert(d2a[sbuf[i]] == str[i]);
-	}
-}
-
 static void encodeChannel(const Channel * c, unsigned char * dbuf, unsigned char * sbuf) {
-	memset(sbuf, STRING_FILL, STRING_SIZE);
-	memset(dbuf, 0, CHANNEL_SIZE);
+	memset(sbuf, Channel::STRING_FILL, Channel::STRING_SIZE);
+	memset(dbuf, 0, Channel::CHANNEL_SIZE);
 
 	dbuf[5]  = 0x07U;
 	dbuf[11] = (c->bank < 2) ? 0x8fU : 0x0fU;
@@ -133,7 +42,7 @@ static void encodeChannel(const Channel * c, unsigned char * dbuf, unsigned char
 
     str2data(c->name, sbuf);
 
-	if (c->unknown) {
+	if (c->skip) {
 		dbuf[0] |= 0x20U;
 	}
 
@@ -361,8 +270,8 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 			if (c->name.length() > 8) c->name.resize(8);
 			cout << TAB "name=" << c->name << endl;
 
-		} else if (!strcmp((const char *)cur->name, "unknown")) {
-			c->unknown = !strcmp((const char *)str, "true");
+		} else if (!strcmp((const char *)cur->name, "skip")) {
+			c->skip = !strcmp((const char *)str, "true");
 		}
     }
 
@@ -399,13 +308,13 @@ static void processDoc(xmlDoc * doc, unsigned char * data) {
 			continue;
 		}
 
-	    Channel * chn = parseChannel(doc, ns, node);
-		if (!chn) {
+		auto_ptr<Channel> chn(parseChannel(doc, ns, node));
+		if (!chn.get()) {
 			cerr << "Could not parse channel" << endl;
 		}
 
-		vector<unsigned char> cdata(CHANNEL_SIZE);
-		vector<unsigned char> sdata(STRING_SIZE);
+		vector<unsigned char> cdata(Channel::CHANNEL_SIZE);
+		vector<unsigned char> sdata(Channel::STRING_SIZE);
 
 		int slot = chn->slot ? chn->slot : n++;
 		slot--;
@@ -414,16 +323,14 @@ static void processDoc(xmlDoc * doc, unsigned char * data) {
         unsigned char * s;
 
 		if (chn->bank < 2) {
-            d = &data[CHANNEL_TOP_OFFSET + (slot * CHANNEL_SIZE)];
-            s = &data[STRING_TOP_OFFSET + (slot * STRING_SIZE)];
+            d = &data[Channel::CHANNEL_TOP_OFFSET + (slot * Channel::CHANNEL_SIZE)];
+            s = &data[Channel::STRING_TOP_OFFSET + (slot * Channel::STRING_SIZE)];
 		} else {
-            d = &data[CHANNEL_BOT_OFFSET + (slot * CHANNEL_SIZE)];
-            s = &data[STRING_BOT_OFFSET + (slot * STRING_SIZE)];
+            d = &data[Channel::CHANNEL_BOT_OFFSET + (slot * Channel::CHANNEL_SIZE)];
+            s = &data[Channel::STRING_BOT_OFFSET + (slot * Channel::STRING_SIZE)];
 		}
 
-		encodeChannel(chn, d, s);
-
-		delete chn;
+		encodeChannel(chn.get(), d, s);
 	}
 }
 
@@ -435,7 +342,7 @@ int main(int argc, char *argv[])
 
 	if (argc != 4) {
 		cerr << "expects three arguments: xml indata outdata" << endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
 
     ifstream is;
@@ -443,7 +350,7 @@ int main(int argc, char *argv[])
     is.open(xmlfile, ios::binary);
     if (!is.is_open()) {
 	    cerr << "Failed to open " << xmlfile << " for input." << endl;
-	    return 1;
+	    return EXIT_FAILURE;
     }
 
     is.seekg(0, ios::end);
@@ -457,7 +364,7 @@ int main(int argc, char *argv[])
     is.open(infile, ios::binary);
     if (!is.is_open()) {
         cerr << "Failed to open " << infile << " for input." << endl;
-        exit(1);
+        return EXIT_FAILURE;
     }
 
     is.seekg(0, ios::end);
@@ -470,7 +377,7 @@ int main(int argc, char *argv[])
 
     if (datalen != 25600) { 
 		cerr << "bad input data length: " << datalen << endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	vector<unsigned char> output(input);
@@ -478,7 +385,7 @@ int main(int argc, char *argv[])
     xmlDoc * doc = xmlReadMemory(&xml[0], xmllen, xmlfile, NULL, 0);
     if (!doc) {
 	    cerr << "Failed to parse " << xmlfile << endl;
-	    return 1;
+	    return EXIT_FAILURE;
     }
 
     processDoc(doc, &output[0]);
@@ -489,12 +396,12 @@ int main(int argc, char *argv[])
 
     if (!os.is_open()) {
         cerr << "Failed to open " << outfile << endl;
-        return 1;
+        return EXIT_FAILURE;
     }
 
 	os.write(reinterpret_cast<char *>(&output[0]), output.size());
 	os.close();
 
 	xmlCleanupParser();
-	return 0;
+	return EXIT_SUCCESS;
 }

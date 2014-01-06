@@ -24,6 +24,7 @@ public:
 	int power;
 	std::string name;
 	bool unknown;
+	bool skip;
 
 	Channel() :
 		bank(0),
@@ -35,23 +36,35 @@ public:
 		dcs(0),
 		mode(0),
 		power(0),
-		unknown(false)
+		unknown(false),
+		skip(false)
 	{
 	}
+
+	static const int NBANKS = 2;
+	static const int NCHANNELS = 500;
+	static const unsigned int CHANNEL_TOP_OFFSET = 0x0200U;
+	static const unsigned int CHANNEL_BOT_OFFSET = 0x2260U;
+	static const unsigned int CHANNEL_SIZE = 0x0010U;
+	static const unsigned int STRING_TOP_OFFSET = 0x42c0U;
+	static const unsigned int STRING_SIZE = 0x0008U;
+	static const unsigned int STRING_BOT_OFFSET = 0x52f0U;
+	static const unsigned char STRING_FILL = 0xcaU;
 };
 
-static const int NCHANNELS = 500;
-static const unsigned int CHANNEL_TOP_OFFSET = 0x0200U;
-static const unsigned int CHANNEL_BOT_OFFSET = 0x2260U;
-static const unsigned int CHANNEL_SIZE = 0x0010U;
-static const unsigned int STRING_TOP_OFFSET = 0x42c0U;
-static const unsigned int STRING_SIZE = 0x0008U;
-static const unsigned int STRING_BOT_OFFSET = 0x52f0U;
-static const unsigned char STRING_FILL = 0xcaU;
-static const unsigned char STRING_ZERO = 191U;
+extern const char * tones[];
+extern const char * dcsCodes[];
+extern const char d2a[];
+extern const unsigned char a2d[];
+
+std::string int2str(int i);
+void str2data(const std::string & str, unsigned char * sbuf);
+std::string data2str(const unsigned char * s, size_t len);
+std::string xmlsafe(const std::string & in);
 
 #define XML_DECL "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 #define CHANNEL_NS_URI "http://boolean.net/ftm400dr/0"
+#define CHANNEL_EXT_NS_URI "http://boolean.net/ftm400dr/ext/0"
 #define TAB "\t"
 
 #endif
