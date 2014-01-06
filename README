@@ -1,6 +1,20 @@
 FTM-400dr Programmer
 
-A start.  Usage:
+A start...
+
+Prerequisites:
+
+C++ compiler (e.g., clang++ or g++)
+GNU Make
+libxml2 (http://www.xmlsoft.org/)
+
+
+Building:
+
+Run 'make'.
+
+
+Usage:
 
 Copy MEMFTM400D.dat from SD Card to local working directory,
 name local copy old.dat.
