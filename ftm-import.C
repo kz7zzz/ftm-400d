@@ -24,6 +24,7 @@
 #include <libxml/tree.h>
 
 #include <assert.h>
+#include <string.h>
 
 #include "ftm.h"
 
