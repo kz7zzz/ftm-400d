@@ -271,7 +271,7 @@ static void processDoc(xmlDoc * doc, unsigned char * data) {
     xmlNode * root = xmlDocGetRootElement(doc);
 	xmlNs * ns = NULL;
     if (root->ns) {
-		if (strcmp((const char*)root->ns->href, CHANNEL_NS_URI)) {
+		if (strcmp((const char*)root->ns->href, SCHEMA_NS_URI)) {
 		    cerr << "Bad NS URI: " << root->ns->href << endl;
 		    return;
 		}

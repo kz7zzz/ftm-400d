@@ -155,10 +155,10 @@ int main(int argc, char *argv[])
     }
 
     cout << XML_DECL << endl;
-    cout << "<channels xmlns=\"" CHANNEL_NS_URI "\"" << endl
-	    << TAB "xmlns:ext=\"http://boolean.net/ftm400dr/ext/0\"" << endl
+    cout << "<channels xmlns=\"" SCHEMA_NS_URI "\"" << endl
+	    << TAB "xmlns:ext=\"" SCHEMA_EXT_NS_URI "\"" << endl
 	    << TAB "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" << endl
-	    << TAB "xsi:schemaLocation=\"http://boolean.net/ftm400dr/0 channels.xsd\"" ">" << endl;
+	    << TAB "xsi:schemaLocation=\"" SCHEMA_NS_URI " " SCHEMA_LOC_URI "\"" ">" << endl;
 
     for (size_t i=0; i<Channel::NCHANNELS; ++i) {
 	    unsigned char * d = &data[Channel::CHANNEL_TOP_OFFSET + (i * Channel::CHANNEL_SIZE)];

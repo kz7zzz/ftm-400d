@@ -79,8 +79,9 @@ std::string data2str(const unsigned char * s, size_t len);
 std::string xmlsafe(const std::string & in);
 
 #define XML_DECL "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-#define CHANNEL_NS_URI "http://boolean.net/ftm400dr/0"
-#define CHANNEL_EXT_NS_URI "http://boolean.net/ftm400dr/ext/0"
+#define SCHEMA_NS_URI "http://boolean.net/ftm400dr/0"
+#define SCHEMA_LOC_URI "https://raw.github.com/kz7zzz/ftm-400d/master/channels.xsd"
+#define SCHEMA_EXT_NS_URI "http://boolean.net/ftm400dr/ext/0"
 #define TAB "\t"
 
 #endif
