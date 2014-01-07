@@ -83,10 +83,8 @@ static void encodeChannel(const Channel * c, unsigned char * dbuf, unsigned char
 		dbuf[1] |= 0x02U; // -
 	}
 
-	if (c->mode) {
-		dbuf[1] |= 0x10U; /* AM */
-	}
-	/* else FM */
+	// probably has more bits
+	dbuf[1] |= 0x10U & (c->mode << 4);
 
 	if (c->tone) {
 		dbuf[5] |= 0x10U;
@@ -97,12 +95,7 @@ static void encodeChannel(const Channel * c, unsigned char * dbuf, unsigned char
 		dbuf[10] |= 0x1fU & c->dcs;
 	}
 
-	if (c->power == 1) {
-		dbuf[9] |= 0x40U; /* medium */
-	} else if (c->power) {
-		dbuf[9] |= 0x80U; /* low */
-	}
-	/* else high */
+	dbuf[9] |= 0xc0U & (c->power << 6);
 
 	dbuf[0] |= 0x80U; // programmed 
 }
@@ -111,17 +104,24 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 	auto_ptr<Channel> c(new Channel);
 	const char * str;
 
-	str = (const char *) xmlGetProp(node, (const xmlChar *)"bank");
+	str = (const char *) xmlGetProp(node, (const xmlChar *)"name");
 	if (str) {
-		c->bank = strtol(str, NULL, 10);
-	}
+		c->cname = str;
+		cout << "Channel: " << c->cname << endl;
 
-	str = (const char *) xmlGetProp(node, (const xmlChar *)"slot");
-	if (str) {
-		c->slot = strtol(str, NULL, 10);
-	}
+	} else {
+	    str = (const char *) xmlGetProp(node, (const xmlChar *)"bank");
+	    if (str) {
+		    c->bank = strtol(str, NULL, 10);
+	    }
 
-	cout << "Channel: " << c->bank << "/" << c->slot << endl;
+	    str = (const char *) xmlGetProp(node, (const xmlChar *)"slot");
+	    if (str) {
+		    c->slot = strtol(str, NULL, 10);
+	    }
+
+		cout << "Channel: " << c->bank << "/" << c->slot << endl;
+	}
 
 	for (xmlNode * cur = node->xmlChildrenNode; cur; cur = cur->next) {
 	    if (cur->type != XML_ELEMENT_NODE) {
@@ -137,24 +137,13 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 		cout << TAB << cur->name << TAB << (str ? (const char *)str : "nil") << endl;
 
 		if (!strcmp((const char *)cur->name, "band")) {
-			if (!strcmp(str, "VHF+")) {
-			    c->band = 1;
-			} else if (!strcmp(str, "VHF")) {
-			    c->band = 2;
-			} else if (!strcmp(str, "G1")) {
-			    c->band = 3;
-			} else if (!strcmp(str, "UHF")) {
-			    c->band = 4;
-			} else if (!strcmp(str, "G2")) {
-			    c->band = 5;
-			} else if (!strcmp(str, "U1")) {
-			    c->band = 6;
-			} else if (!strcmp(str, "U2")) {
-			    c->band = 7;
-			} else if (!strcmp(str, "U3")) {
-			    c->band = 8;
+			for (int i=1; bands[i]; i++) {
+				if (!strcmp(str, bands[i])) {
+			    	c->band = i;
+					break;	
+				}
 			}
-			cout << TAB "band=" << c->band << endl;
+			cout << TAB "band=" << bands[c->band] << " " << c->band << endl;
 
 		} else if (!strcmp((const char *)cur->name, "frequency")) {
 			char *p = NULL;
@@ -322,12 +311,40 @@ static void processDoc(xmlDoc * doc, unsigned char * data) {
         unsigned char * d;
         unsigned char * s;
 
-		if (chn->bank < 2) {
+		if (chn->cname.length()) {
+			int i;
+
+			for(i=0; i<Channel::NPCHANNELS; i++) {
+				if (!strcmp(pchannels[i], chn->cname.c_str())) break;
+			}
+
+			if (i < Channel::NPCHANNELS) {
+            	d = &data[Channel::PCHANNEL_OFFSET + (i * Channel::CHANNEL_SIZE)];
+            	s = &data[Channel::PCHANNEL_STRING_OFFSET + (i * Channel::STRING_SIZE)];
+
+			} else {
+				// assume its "home"
+            	d = &data[Channel::HOME_OFFSET];
+            	s = &data[Channel::HOME_STRING_OFFSET];
+			}
+
+		} else if (chn->bank < 2) {
             d = &data[Channel::CHANNEL_TOP_OFFSET + (slot * Channel::CHANNEL_SIZE)];
             s = &data[Channel::CHANNEL_TOP_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
+
+			if (slot>=Channel::NCHANNELS) {
+				cerr << "too many bank 1 channels, skipping";
+				continue;
+			}
+
 		} else {
             d = &data[Channel::CHANNEL_BOT_OFFSET + (slot * Channel::CHANNEL_SIZE)];
             s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
+
+			if (slot>=Channel::NCHANNELS) {
+				cerr << "too many bank 1 channels, skipping";
+				continue;
+			}
 		}
 
 		encodeChannel(chn.get(), d, s);

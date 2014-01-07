@@ -8,7 +8,8 @@
 # Provided "as is" without warranty of any kind.
 
 
-CPPFLAGS += `xml2-config --cflags`
+CPPFLAGS += `xml2-config --cflags` -g
+CFLAGS += -g
 XMLLIB = `xml2-config --libs`
 
 all: ftm-strings ftm-test ftm-export ftm-import

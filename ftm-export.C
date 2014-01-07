@@ -23,86 +23,102 @@
 
 using namespace std;
 
-void dumpChannel(
-    size_t bank,
-    size_t slot,
+static Channel * decodeChannel(
     const unsigned char * c,
     const unsigned char * s,
 	bool home = false)
 {
-    string station = data2str(s, Channel::STRING_SIZE);
+    if (!home && !(c[0] & 0x80U)) return NULL; /* not programmed */
 
-    if (!home && !(c[0] & 0x80U)) return; /* not programmed */
+	auto_ptr<Channel> chn(new Channel);
 
-    bool skip = c[0] & 0x20U;
+    chn->name = data2str(s, Channel::STRING_SIZE);
+    chn->skip = c[0] & 0x20U;
+    chn->band = c[0] & 0x07U + 1;
 
-    string band;
-    switch (c[0] & 0x07U) {
-    case 0x00U: band = "VHF+"; break;
-    case 0x01U: band = "VHF"; break;
-    case 0x02U: band = "G1"; break;
-    case 0x03U: band = "UHF"; break;
-    case 0x04U: band = "G2"; break;
-    case 0x05U: band = "U1"; break;
-    case 0x06U: band = "U2"; break;
-    case 0x07U: band = "U3"; break;
-    }
-
-    string offset;
     switch (c[1] & 0x03U) {
-    case 0x01U: offset = "unknown"; break;
-    case 0x02U: offset = "-"; break;
-    case 0x03U: offset = "+"; break;
+    case 0x02U: chn->offset = -600; break;
+    case 0x03U: chn->offset = +600; break;
     }
 
-    string mode = "FM";
-    switch (c[1] & 0x10U) { // probably more bits here to consider
-    case 0x10U: mode= "AM"; break;
-    }
+	chn->mode = (c[1] & 0x10U) >> 4; // probably more bits here to consider
 
-    unsigned int mhz = 0;
-    mhz += 100 * (c[2] & 0x0FU);
-    mhz += 10 * ((c[3] & 0xF0U)>>4);
-    mhz += c[3] & 0x0FU;
+	chn->freq += 100 * 1000 * (c[2] & 0x0FU);
+    chn->freq += 10 * 1000 * ((c[3] & 0xF0U)>>4);
+    chn->freq += 1000 * (c[3] & 0x0FU);
+    chn->freq += 100 * ((c[4] & 0xF0U)>>4);
+    chn->freq += 10 * (c[4] & 0x0FU);
+    if (c[2] & 0x80U) chn->freq += 5;
 
-    unsigned int khz = 0;
-    khz += 100 * ((c[4] & 0xF0U)>>4);
-    khz += 10 * (c[4] & 0x0FU);
-    if (c[2] & 0x80U) khz += 5;
-
+#if 0
     // not sure about this
     string def = " ";
     switch (c[5] & 0x03U) {
     case 0x06U: def = "T"; break;
     case 0x07U: def = "B"; break;
     }
+#endif
 
-    bool hasTone = c[5] & 0x10U;
-    unsigned int tone = c[9] & 0x1fU;
+	if (c[5] & 0x10U) {
+        chn->tone = (c[9] & 0x1fU) + 1;
+	}
 
-    string power("high");
-    switch (c[9] & 0xc0U) {
-    case 0x80U: power="low"; break;
-    case 0x40U: power="medium"; break;
-    case 0xc0U: power="unknown"; break;
-    }
-    
-    unsigned int dcs = c[10] & 0x0fU;
+	chn->dcs = c[10] & 0x0fU;
+	chn->power = (c[9] & 0xc0U) >> 6;
 
-    //
-    // TODO: separate datafile decoding from XML encoding
-    //
-    cout << TAB << "<channel bank=\"" << bank <<
-		"\" slot=\"" << slot << "\">" << endl;
-    cout << TAB TAB << "<band>" << band << "</band>" << endl;
-    cout << TAB TAB << "<frequency>" << mhz << "." << khz << "</frequency>" << endl;
-    if (offset.length()) cout << TAB TAB << "<offset>" << offset << "</offset>" << endl;
-    if (hasTone) cout << TAB TAB << "<tone>" << tones[tone] << "</tone>" << endl;
-    cout << TAB TAB << "<mode>" << mode << "</mode>" << endl;
-    cout << TAB TAB << "<power>" << power << "</power>" << endl;
-    if (dcs) cout << TAB TAB << "<dcs>" << dcsCodes[dcs] << "</dcs>" << endl;
-    if (station.length()) cout << TAB TAB << "<name>" << xmlsafe(station) << "</name>" << endl;
-    if (skip) cout << TAB TAB << "<skip>true</skip>" << endl;
+	return chn.release();
+}
+
+void channel2xml(
+	const Channel * chn)
+{
+    cout << TAB << "<channel";
+
+	if (chn->cname.length()) {
+		cout << " name=\"" << chn->cname << "\"";
+	}
+
+	if (chn->bank>0) {
+		cout << " bank=\"" << chn->bank << "\"";
+	}
+
+	if (chn->slot>0) {
+		cout << " slot=\"" << chn->slot << "\"";
+	}
+
+	cout << ">" << endl;
+
+	if (chn->band) {
+    	cout << TAB TAB << "<band>" << bands[chn->band] << "</band>" << endl;
+	}
+
+    cout << TAB TAB << "<frequency>" << chn->freq << "</frequency>" << endl;
+
+    if (chn->offset) {
+		cout << TAB TAB <<
+			"<offset>" << (chn->offset > 0 ? "+" : "")
+				<< chn->offset << "</offset>" << endl;
+	}
+
+    if (chn->tone) {
+		cout << TAB TAB << "<tone>" << tones[chn->tone-1] << "</tone>" << endl;
+	}
+
+    cout << TAB TAB << "<mode>" << modes[chn->mode] << "</mode>" << endl;
+    cout << TAB TAB << "<power>" << powers[chn->power] << "</power>" << endl;
+
+    if (chn->dcs) {
+		cout << TAB TAB << "<dcs>" << dcsCodes[chn->dcs] << "</dcs>" << endl;
+	}
+
+    if (chn->name.length()) {
+		cout << TAB TAB << "<name>" << xmlsafe(chn->name) << "</name>" << endl;
+	}
+
+    if (chn->skip) {
+		cout << TAB TAB << "<skip>true</skip>" << endl;
+	}
+
     cout << TAB << "</channel>" << endl;
 }
 
@@ -147,20 +163,44 @@ int main(int argc, char *argv[])
     for (size_t i=0; i<Channel::NCHANNELS; ++i) {
 	    unsigned char * d = &data[Channel::CHANNEL_TOP_OFFSET + (i * Channel::CHANNEL_SIZE)];
 	    unsigned char * s = &data[Channel::CHANNEL_TOP_STRING_OFFSET + (i * Channel::STRING_SIZE)];
-	    dumpChannel(1, i+1, d, s);
+	    auto_ptr<Channel> chn(decodeChannel(d, s));
+		if (chn.get()) {
+			chn->bank = 1;
+			chn->slot = i+1;
+			channel2xml(chn.get());
+		}
     }
 
     for (size_t i=0; i<Channel::NCHANNELS; ++i) { // bottom
 	    unsigned char * d = &data[Channel::CHANNEL_BOT_OFFSET + (i * Channel::CHANNEL_SIZE)];
 	    unsigned char * s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (i * Channel::STRING_SIZE)];
-	    dumpChannel(2, i+1, d, s);
+	    auto_ptr<Channel> chn(decodeChannel(d, s));
+		if (chn.get()) {
+			chn->bank = 2;
+			chn->slot = i+1;
+		    channel2xml(chn.get());
+		}
     }
 
-    for (size_t i=0; i<2; ++i) {
-	    unsigned char * d = &data[Channel::HOME_OFFSET + (i * Channel::CHANNEL_SIZE)];
-	    unsigned char * s = &data[Channel::HOME_STRING_OFFSET + (i * Channel::STRING_SIZE)];
-	    dumpChannel(3, i+1, d, s);
+    {
+	    unsigned char * d = &data[Channel::HOME_OFFSET];
+	    unsigned char * s = &data[Channel::HOME_STRING_OFFSET];
+	    auto_ptr<Channel> chn(decodeChannel(d, s));
+		if (chn.get()) {
+			chn->cname = "home";
+			channel2xml(chn.get());
+		}
     }
+
+    for (size_t i=0; i<Channel::NPCHANNELS; ++i) {
+	    unsigned char * d = &data[Channel::PCHANNEL_OFFSET + (i * Channel::CHANNEL_SIZE)];
+	    unsigned char * s = &data[Channel::PCHANNEL_STRING_OFFSET + (i * Channel::STRING_SIZE)];
+	    auto_ptr<Channel> chn(decodeChannel(d, s));
+		if (chn.get()) {
+			chn->cname = pchannels[i];
+			channel2xml(chn.get());
+		}
+	}
 
     cout  << "</channels>" << endl;
 	return EXIT_SUCCESS;

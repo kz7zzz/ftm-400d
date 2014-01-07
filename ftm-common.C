@@ -99,6 +99,23 @@ const char * dcsCodes[] = {
 	"734", "743", "754", NULL
 };
 
+const char * modes[] = {
+	"FM", "AM", "2", "3"
+};
+
+const char * powers[] = {
+	"high", "meduim", "low", "unknown"
+};
+
+const char * bands[] = {
+	"", "Air", "VHF", "GEN1", "UNF", "GEN2", "Unknown", "Unknown", "Unknown", NULL
+};
+
+const char * pchannels[] = {
+	"P1U", "P1L", "P2U", "P2L", "P3U", "P3L", "P4U", "P4L", "P5U", "P5L",
+	"P6U", "P6L", "P7U", "P7L", "P8U", "P8L", "P9U", "P9L"
+};
+
 string int2str(int i) {
 	ostringstream os;
 	os << i;

@@ -13,8 +13,10 @@
 class Channel
 {
 public:
+	std::string cname;
 	int bank;
 	int slot;
+
 	int band;
 	int freq; // in hz
 	int offset; // in hz
@@ -57,15 +59,19 @@ public:
 	static const unsigned int CHANNEL_BOT_STRING_OFFSET = 0x52f0U;
 
 	static const int NPCHANNELS = 18;
-	static const unsigned int PCHANNEL_TOP_OFFSET = 0x2140U;
-	static const unsigned int PCHANNEL_TOP_STRING_OFFSET = 0x5260U;
+	static const unsigned int PCHANNEL_OFFSET = 0x2140U;
+	static const unsigned int PCHANNEL_STRING_OFFSET = 0x5260U;
 };
 
+extern const char * modes[];
+extern const char * powers[];
 extern const char * tones[];
 extern const char * dcsCodes[];
 extern const unsigned char d2a[];
 extern const unsigned char a2d[];
 extern const char * utf8[];
+extern const char * bands[];
+extern const char * pchannels[];
 
 std::string int2str(int i);
 size_t str2data(const std::string & str, unsigned char * sbuf);
