@@ -92,12 +92,15 @@ void channel2xml(
     	cout << TAB TAB << "<band>" << bands[chn->band] << "</band>" << endl;
 	}
 
-    cout << TAB TAB << "<frequency>" << chn->freq << "</frequency>" << endl;
+    cout << TAB TAB << "<frequency>" << chn->freq / 1000 << "."
+		<< setfill('0') << setw(3) << chn->freq % 1000 << "</frequency>" << endl;
 
     if (chn->offset) {
+		int offset = abs(chn->offset);
 		cout << TAB TAB <<
-			"<offset>" << (chn->offset > 0 ? "+" : "")
-				<< chn->offset << "</offset>" << endl;
+			"<offset>" << (chn->offset > 0 ? "+" : "-")
+				<< offset / 1000 << "."
+				<< setfill('0') << setw(3) << offset % 1000 << "</offset>" << endl;
 	}
 
     if (chn->tone) {

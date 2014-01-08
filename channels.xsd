@@ -9,8 +9,10 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="band" type="xs:string"/>
-                <xs:element name="frequency" type="xs:decimal"/>
-                <xs:element name="offset" type="xs:string" default="0" minOccurs="0"/>
+                <xs:element name="frequency" type="xs:decimal">
+                    <xs:annotation><xs:documentation>Frequency in Mhz</xs:documentation></xs:annotation>
+                </xs:element>
+                <xs:element name="offset" type="xs:string" default="0" minOccurs="0"> <xs:annotation><xs:documentation>Offset in Mhz</xs:documentation></xs:annotation></xs:element>
                 <xs:element name="tone" type="xs:decimal" minOccurs="0"/>
                 <xs:element name="mode" type="xs:string" default="FM" minOccurs="0"/>
                 <xs:element name="power" type="xs:string" default="low" minOccurs="0"/>
