@@ -30,7 +30,11 @@
 
 using namespace std;
 
-static void encodeChannel(const Channel * c, unsigned char * dbuf, unsigned char * sbuf) {
+static void encodeChannel(
+	const Channel * c,
+	unsigned char * dbuf,
+	unsigned char * sbuf)
+{
 	memset(sbuf, Channel::STRING_FILL, Channel::STRING_SIZE);
 	memset(dbuf, 0, Channel::CHANNEL_SIZE);
 
@@ -40,7 +44,7 @@ static void encodeChannel(const Channel * c, unsigned char * dbuf, unsigned char
 
 	if (!c) return;
 
-    str2data(c->name, sbuf);
+	str2data(c->name, sbuf);
 
 	if (c->skip) {
 		dbuf[0] |= 0x20U;
@@ -100,7 +104,11 @@ static void encodeChannel(const Channel * c, unsigned char * dbuf, unsigned char
 	dbuf[0] |= 0x80U; // programmed 
 }
  
-static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
+static Channel * parseChannel(
+	xmlDoc * doc,
+	xmlNs * ns,
+	xmlNode * node)
+{
 	auto_ptr<Channel> c(new Channel);
 	const char * str;
 
@@ -110,21 +118,21 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 		cout << "Channel: " << c->cname << endl;
 
 	} else {
-	    str = (const char *) xmlGetProp(node, (const xmlChar *)"bank");
-	    if (str) {
-		    c->bank = strtol(str, NULL, 10);
-	    }
+		str = (const char *) xmlGetProp(node, (const xmlChar *)"bank");
+		if (str) {
+			c->bank = strtol(str, NULL, 10);
+		}
 
-	    str = (const char *) xmlGetProp(node, (const xmlChar *)"slot");
-	    if (str) {
-		    c->slot = strtol(str, NULL, 10);
-	    }
+		str = (const char *) xmlGetProp(node, (const xmlChar *)"slot");
+		if (str) {
+			c->slot = strtol(str, NULL, 10);
+		}
 
 		cout << "Channel: " << c->bank << "/" << c->slot << endl;
 	}
 
 	for (xmlNode * cur = node->xmlChildrenNode; cur; cur = cur->next) {
-	    if (cur->type != XML_ELEMENT_NODE) {
+		if (cur->type != XML_ELEMENT_NODE) {
 			continue;
 		}
 		if (cur->ns != ns) {
@@ -139,7 +147,7 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 		if (!strcmp((const char *)cur->name, "band")) {
 			for (int i=1; bands[i]; i++) {
 				if (!strcmp(str, bands[i])) {
-			    	c->band = i;
+					c->band = i;
 					break;	
 				}
 			}
@@ -158,7 +166,7 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 					c->freq += m[i] * (p[i] - '0');
 				}
 
-		    } else {
+			} else {
 				c->freq = l;
 			}
 
@@ -180,7 +188,7 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 
 				if (neg && c->offset > 0) c->offset *= -1;
 
-		    } else {
+			} else {
 				c->offset = l;
 			}
 			cout << TAB "offset=" << c->offset << endl;
@@ -240,7 +248,7 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 			}
 
 		} else if (!strcmp((const char *)cur->name, "dcs")) {
-		    for (int i=1; dcsCodes[i]; i++) {
+			for (int i=1; dcsCodes[i]; i++) {
 				if (!strcmp((const char *)str, dcsCodes[i])) {
 					c->dcs = i;
 					break;
@@ -253,17 +261,17 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 
 		} else if (!strcmp((const char *)cur->name, "mode")) {
 			if (!strcmp(str, "AM")) {
-			    c->mode = 1;
+				c->mode = 1;
 			}
 			cout << TAB "mode=" << c->mode << endl;
 
 		} else if (!strcmp((const char *)cur->name, "power")) {
 			if (!strcmp(str, "high")) {
-			    c->power = 0;
+				c->power = 0;
 			} else if (!strcmp(str, "medium")) {
-			    c->power = 1;
+				c->power = 1;
 			} else if (!strcmp(str, "low")) {
-			    c->power = 2;
+				c->power = 2;
 			}
 			cout << TAB "power=" << c->power << endl;
 
@@ -275,30 +283,34 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 		} else if (!strcmp((const char *)cur->name, "skip")) {
 			c->skip = !strcmp((const char *)str, "true");
 		}
-    }
+	}
 
-    return c.release();
+	return c.release();
 }
 
-static void processDoc(xmlDoc * doc, unsigned char * data) {
-    xmlNode * root = xmlDocGetRootElement(doc);
+static void processDoc(
+	xmlDoc * doc,
+	unsigned char * data)
+{
+	xmlNode * root = xmlDocGetRootElement(doc);
 	xmlNs * ns = NULL;
-    if (root->ns) {
+
+	if (root->ns) {
 		if (strcmp((const char*)root->ns->href, SCHEMA_NS_URI)) {
-		    cerr << "Bad NS URI: " << root->ns->href << endl;
-		    return;
+			cerr << "Bad NS URI: " << root->ns->href << endl;
+			return;
 		}
 		ns = root->ns;
 	}
 
 	if (strcmp((const char *)root->name, "channels")) {
-	    cerr << "Bad root element: " << root->ns->href << endl;
-	    return;
+		cerr << "Bad root element: " << root->ns->href << endl;
+		return;
 	}
 
 	int n=101;
 	for (xmlNode * node = root->children; node; node = node->next) {
-	    if (node->type != XML_ELEMENT_NODE) {
+		if (node->type != XML_ELEMENT_NODE) {
 			continue;
 		}
 		if (node->ns != ns) {
@@ -321,8 +333,8 @@ static void processDoc(xmlDoc * doc, unsigned char * data) {
 		int slot = chn->slot ? chn->slot : n++;
 		slot--;
 
-        unsigned char * d;
-        unsigned char * s;
+		unsigned char * d;
+		unsigned char * s;
 
 		if (chn->cname.length()) {
 			int i;
@@ -332,18 +344,18 @@ static void processDoc(xmlDoc * doc, unsigned char * data) {
 			}
 
 			if (i < Channel::NPCHANNELS) {
-            	d = &data[Channel::PCHANNEL_OFFSET + (i * Channel::CHANNEL_SIZE)];
-            	s = &data[Channel::PCHANNEL_STRING_OFFSET + (i * Channel::STRING_SIZE)];
+				d = &data[Channel::PCHANNEL_OFFSET + (i * Channel::CHANNEL_SIZE)];
+				s = &data[Channel::PCHANNEL_STRING_OFFSET + (i * Channel::STRING_SIZE)];
 
 			} else {
 				// assume its "Home"
-            	d = &data[Channel::HOME_OFFSET];
-            	s = &data[Channel::HOME_STRING_OFFSET];
+				d = &data[Channel::HOME_OFFSET];
+				s = &data[Channel::HOME_STRING_OFFSET];
 			}
 
 		} else if (chn->bank < 2) {
-            d = &data[Channel::CHANNEL_TOP_OFFSET + (slot * Channel::CHANNEL_SIZE)];
-            s = &data[Channel::CHANNEL_TOP_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
+			d = &data[Channel::CHANNEL_TOP_OFFSET + (slot * Channel::CHANNEL_SIZE)];
+			s = &data[Channel::CHANNEL_TOP_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
 
 			if (slot>=Channel::NCHANNELS) {
 				cerr << "too many bank 1 channels, skipping";
@@ -351,8 +363,8 @@ static void processDoc(xmlDoc * doc, unsigned char * data) {
 			}
 
 		} else {
-            d = &data[Channel::CHANNEL_BOT_OFFSET + (slot * Channel::CHANNEL_SIZE)];
-            s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
+			d = &data[Channel::CHANNEL_BOT_OFFSET + (slot * Channel::CHANNEL_SIZE)];
+			s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
 
 			if (slot>=Channel::NCHANNELS) {
 				cerr << "too many bank 1 channels, skipping";
@@ -366,68 +378,68 @@ static void processDoc(xmlDoc * doc, unsigned char * data) {
 
 int main(int argc, char *argv[])
 {
-    const char * xmlfile = argv[1];
-    const char * infile = argv[2];
-    const char * outfile = argv[3];
+	const char * xmlfile = argv[1];
+	const char * infile = argv[2];
+	const char * outfile = argv[3];
 
 	if (argc != 4) {
 		cerr << "expects three arguments: xml indata outdata" << endl;
 		return EXIT_FAILURE;
 	}
 
-    ifstream is;
+	ifstream is;
 
-    is.open(xmlfile, ios::binary);
-    if (!is.is_open()) {
-	    cerr << "Failed to open " << xmlfile << " for input." << endl;
-	    return EXIT_FAILURE;
-    }
+	is.open(xmlfile, ios::binary);
+	if (!is.is_open()) {
+		cerr << "Failed to open " << xmlfile << " for input." << endl;
+		return EXIT_FAILURE;
+	}
 
-    is.seekg(0, ios::end);
-    off_t xmllen = is.tellg();
-    vector<char> xml(xmllen);
+	is.seekg(0, ios::end);
+	off_t xmllen = is.tellg();
+	vector<char> xml(xmllen);
 
-    is.seekg(0, ios::beg);
-    is.read((&xml[0]), xmllen);
-    is.close();
+	is.seekg(0, ios::beg);
+	is.read((&xml[0]), xmllen);
+	is.close();
 
-    is.open(infile, ios::binary);
-    if (!is.is_open()) {
-        cerr << "Failed to open " << infile << " for input." << endl;
-        return EXIT_FAILURE;
-    }
+	is.open(infile, ios::binary);
+	if (!is.is_open()) {
+		cerr << "Failed to open " << infile << " for input." << endl;
+		return EXIT_FAILURE;
+	}
 
-    is.seekg(0, ios::end);
-    off_t datalen = is.tellg();
-    vector<unsigned char> input(datalen);
+	is.seekg(0, ios::end);
+	off_t datalen = is.tellg();
+	vector<unsigned char> input(datalen);
 
-    is.seekg(0, ios::beg);
-    is.read(reinterpret_cast<char *>(&input[0]), datalen);
-    is.close();
+	is.seekg(0, ios::beg);
+	is.read(reinterpret_cast<char *>(&input[0]), datalen);
+	is.close();
 
-    if (datalen != 25600) { 
+	if (datalen != 25600) { 
 		cerr << "bad input data length: " << datalen << endl;
 		return EXIT_FAILURE;
 	}
 
 	vector<unsigned char> output(input);
 
-    xmlDoc * doc = xmlReadMemory(&xml[0], xmllen, xmlfile, NULL, 0);
-    if (!doc) {
-	    cerr << "Failed to parse " << xmlfile << endl;
-	    return EXIT_FAILURE;
-    }
+	xmlDoc * doc = xmlReadMemory(&xml[0], xmllen, xmlfile, NULL, 0);
+	if (!doc) {
+		cerr << "Failed to parse " << xmlfile << endl;
+		return EXIT_FAILURE;
+	}
 
-    processDoc(doc, &output[0]);
+	processDoc(doc, &output[0]);
 	xmlFreeDoc(doc);
 
-    ofstream os;
+	ofstream os;
 	os.open(outfile, ios::binary);
 
-    if (!os.is_open()) {
-        cerr << "Failed to open " << outfile << endl;
-        return EXIT_FAILURE;
-    }
+	if (!os.is_open()) {
+		cerr << "Failed to open " << outfile << endl;
+		return EXIT_FAILURE;
+	}
 
 	os.write(reinterpret_cast<char *>(&output[0]), output.size());
 	os.close();

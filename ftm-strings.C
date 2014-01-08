@@ -56,9 +56,9 @@ int main(int argc, char *argv[])
 		unsigned char a = d2a[c];
 		if ((i < 0x0200 || i >= 0x42B0) && a) {
 			if (a < 0x80) {
-			    s.append(1, a);
+				s.append(1, a);
 			} else {
-			    s.append(utf8[a - 0x80]);
+				s.append(utf8[a - 0x80]);
 			}
 			n++;
 

@@ -22,17 +22,17 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    unsigned x;
+	unsigned x;
 
 	for (x = 0; x < 256; x++) {
 		if (a2d[x] && (d2a[a2d[x]] != x)) {
-		    cerr << "ASCII: 0x" << std::hex << x << " -> YCHAR 0x" << (unsigned)a2d[x] << " reversed to 0x" << (unsigned)d2a[a2d[x]] << endl;
+			cerr << "ASCII: 0x" << std::hex << x << " -> YCHAR 0x" << (unsigned)a2d[x] << " reversed to 0x" << (unsigned)d2a[a2d[x]] << endl;
 		}
 	}
 
 	for (x = 0; x < 256; x++) {
 		if (d2a[x] && (a2d[d2a[x]] != x)) {
-		    cerr << "YCHAR: 0x" << std::hex << x << " -> ASCII 0x" << (unsigned)d2a[x] << " reversed to 0x" << (unsigned)a2d[d2a[x]] << endl;
+			cerr << "YCHAR: 0x" << std::hex << x << " -> ASCII 0x" << (unsigned)d2a[x] << " reversed to 0x" << (unsigned)a2d[d2a[x]] << endl;
 		}
 	}
 
