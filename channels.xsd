@@ -1,32 +1,269 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://boolean.net/ftm400dr/0" xmlns="http://boolean.net/ftm400dr/0"
-    elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://boolean.net/ftm400dr/0" xmlns="http://boolean.net/ftm400dr/0" elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
     <xs:annotation>
         <xs:documentation>Schema for repeaters</xs:documentation>
     </xs:annotation>
 
+    <xs:simpleType name="bank">
+        <xs:restriction base="xs:positiveInteger">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="slot">
+        <xs:restriction base="xs:positiveInteger">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="500"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="band">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="UHF"/>
+            <xs:enumeration value="VHF"/>
+            <xs:enumeration value="Air"/>
+            <xs:enumeration value="Gen1"/>
+            <xs:enumeration value="Gen2"/>
+            <xs:enumeration value="Air"/>
+            <xs:enumeration value="Unknown"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="cFrequency">
+        <xs:restriction base="xs:decimal">
+            <xs:minInclusive value="0"/>
+            <xs:maxExclusive value="1000"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="oFrequency">
+        <xs:restriction base="xs:decimal">
+            <xs:minInclusive value="-100"/>
+            <xs:maxInclusive value="100"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="tFrequency">
+        <xs:restriction base="xs:decimal">
+            <xs:enumeration value="67.0"/>
+            <xs:enumeration value="69.3"/>
+            <xs:enumeration value="71.9"/>
+            <xs:enumeration value="74.4"/>
+            <xs:enumeration value="77.0"/>
+            <xs:enumeration value="79.7"/>
+            <xs:enumeration value="82.5"/>
+            <xs:enumeration value="85.4"/>
+            <xs:enumeration value="88.5"/>
+            <xs:enumeration value="91.5"/>
+            <xs:enumeration value="94.8"/>
+            <xs:enumeration value="97.4"/>
+            <xs:enumeration value="100.0"/>
+            <xs:enumeration value="103.5"/>
+            <xs:enumeration value="107.2"/>
+            <xs:enumeration value="110.9"/>
+            <xs:enumeration value="114.8"/>
+            <xs:enumeration value="118.8"/>
+            <xs:enumeration value="123.0"/>
+            <xs:enumeration value="127.3"/>
+            <xs:enumeration value="131.8"/>
+            <xs:enumeration value="136.5"/>
+            <xs:enumeration value="141.3"/>
+            <xs:enumeration value="146.2"/>
+            <xs:enumeration value="151.4"/>
+            <xs:enumeration value="156.7"/>
+            <xs:enumeration value="162.2"/>
+            <xs:enumeration value="167.9"/>
+            <xs:enumeration value="173.8"/>
+            <xs:enumeration value="179.9"/>
+            <xs:enumeration value="186.2"/>
+            <xs:enumeration value="192.8"/>
+            <xs:enumeration value="203.5"/>
+            <xs:enumeration value="206.5"/>
+            <xs:enumeration value="210.7"/>
+            <xs:enumeration value="218.1"/>
+            <xs:enumeration value="225.7"/>
+            <xs:enumeration value="229.1"/>
+            <xs:enumeration value="233.6"/>
+            <xs:enumeration value="241.8"/>
+            <xs:enumeration value="250.3"/>
+            <xs:enumeration value="254.1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="dcsCodes">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="023"/>
+            <xs:enumeration value="025"/>
+            <xs:enumeration value="026"/>
+            <xs:enumeration value="031"/>
+            <xs:enumeration value="032"/>
+            <xs:enumeration value="043"/>
+            <xs:enumeration value="047"/>
+            <xs:enumeration value="051"/>
+            <xs:enumeration value="054"/>
+            <xs:enumeration value="065"/>
+            <xs:enumeration value="071"/>
+            <xs:enumeration value="072"/>
+            <xs:enumeration value="073"/>
+            <xs:enumeration value="074"/>
+            <xs:enumeration value="114"/>
+            <xs:enumeration value="115"/>
+            <xs:enumeration value="116"/>
+            <xs:enumeration value="125"/>
+            <xs:enumeration value="131"/>
+            <xs:enumeration value="132"/>
+            <xs:enumeration value="134"/>
+            <xs:enumeration value="143"/>
+            <xs:enumeration value="152"/>
+            <xs:enumeration value="155"/>
+            <xs:enumeration value="156"/>
+            <xs:enumeration value="162"/>
+            <xs:enumeration value="165"/>
+            <xs:enumeration value="172"/>
+            <xs:enumeration value="174"/>
+            <xs:enumeration value="205"/>
+            <xs:enumeration value="223"/>
+            <xs:enumeration value="226"/>
+            <xs:enumeration value="243"/>
+            <xs:enumeration value="244"/>
+            <xs:enumeration value="245"/>
+            <xs:enumeration value="251"/>
+            <xs:enumeration value="261"/>
+            <xs:enumeration value="263"/>
+            <xs:enumeration value="265"/>
+            <xs:enumeration value="271"/>
+            <xs:enumeration value="306"/>
+            <xs:enumeration value="311"/>
+            <xs:enumeration value="315"/>
+            <xs:enumeration value="331"/>
+            <xs:enumeration value="343"/>
+            <xs:enumeration value="345"/>
+            <xs:enumeration value="351"/>
+            <xs:enumeration value="364"/>
+            <xs:enumeration value="365"/>
+            <xs:enumeration value="371"/>
+            <xs:enumeration value="411"/>
+            <xs:enumeration value="412"/>
+            <xs:enumeration value="413"/>
+            <xs:enumeration value="423"/>
+            <xs:enumeration value="431"/>
+            <xs:enumeration value="432"/>
+            <xs:enumeration value="445"/>
+            <xs:enumeration value="464"/>
+            <xs:enumeration value="465"/>
+            <xs:enumeration value="466"/>
+            <xs:enumeration value="503"/>
+            <xs:enumeration value="506"/>
+            <xs:enumeration value="516"/>
+            <xs:enumeration value="532"/>
+            <xs:enumeration value="546"/>
+            <xs:enumeration value="565"/>
+            <xs:enumeration value="606"/>
+            <xs:enumeration value="612"/>
+            <xs:enumeration value="624"/>
+            <xs:enumeration value="627"/>
+            <xs:enumeration value="631"/>
+            <xs:enumeration value="632"/>
+            <xs:enumeration value="654"/>
+            <xs:enumeration value="662"/>
+            <xs:enumeration value="664"/>
+            <xs:enumeration value="703"/>
+            <xs:enumeration value="712"/>
+            <xs:enumeration value="723"/>
+            <xs:enumeration value="731"/>
+            <xs:enumeration value="732"/>
+            <xs:enumeration value="734"/>
+            <xs:enumeration value="743"/>
+            <xs:enumeration value="754"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="power">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="high"/>
+            <xs:enumeration value="medium"/>
+            <xs:enumeration value="low"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="mode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="FM"/>
+            <xs:enumeration value="AM"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="cname">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Home"/>
+            <xs:enumeration value="P1U"/>
+            <xs:enumeration value="P1L"/>
+            <xs:enumeration value="P2U"/>
+            <xs:enumeration value="P2L"/>
+            <xs:enumeration value="P3U"/>
+            <xs:enumeration value="P3L"/>
+            <xs:enumeration value="P4U"/>
+            <xs:enumeration value="P4L"/>
+            <xs:enumeration value="P5U"/>
+            <xs:enumeration value="P5L"/>
+            <xs:enumeration value="P6U"/>
+            <xs:enumeration value="P6L"/>
+            <xs:enumeration value="P7U"/>
+            <xs:enumeration value="P7L"/>
+            <xs:enumeration value="P8U"/>
+            <xs:enumeration value="P8L"/>
+            <xs:enumeration value="P9U"/>
+            <xs:enumeration value="P9L"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="name">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="8"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:element name="channel">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="band" type="xs:string"/>
-                <xs:element name="frequency" type="xs:decimal">
-                    <xs:annotation><xs:documentation>Frequency in Mhz</xs:documentation></xs:annotation>
+                <xs:element name="band" type="band"/>
+                <xs:element name="frequency" type="cFrequency">
+                    <xs:annotation>
+                        <xs:documentation>Frequency in Mhz</xs:documentation>
+                    </xs:annotation>
                 </xs:element>
-                <xs:element name="offset" type="xs:string" default="0" minOccurs="0"> <xs:annotation><xs:documentation>Offset in Mhz</xs:documentation></xs:annotation></xs:element>
-                <xs:element name="tone" type="xs:decimal" minOccurs="0"/>
-                <xs:element name="mode" type="xs:string" default="FM" minOccurs="0"/>
-                <xs:element name="power" type="xs:string" default="low" minOccurs="0"/>
-                <xs:element name="name" type="xs:string" minOccurs="0"/>
+                <xs:element name="offset" type="oFrequency" default="0" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Offset in Mhz</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="tone" type="tFrequency" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>CTCSS tones in Hz</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="dcs" type="dcsCodes" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>DCS by code</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="mode" type="mode" default="FM" minOccurs="0"/>
+                <xs:element name="power" type="power" default="low" minOccurs="0"/>
+                <xs:element name="name" type="name" minOccurs="0"/>
                 <xs:any notNamespace="##local" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
-            <xs:attribute name="bank" type="xs:positiveInteger" use="optional"/>
-            <xs:attribute name="slot" type="xs:positiveInteger" use="optional"/>
+            <xs:attribute name="name" type="cname" use="optional"/>
+            <xs:attribute name="bank" type="bank" use="optional"/>
+            <xs:attribute name="slot" type="slot" use="optional"/>
         </xs:complexType>
     </xs:element>
+
     <xs:element name="channels">
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="channel" minOccurs="0" maxOccurs="unbounded"></xs:element>
+                <xs:element ref="channel" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

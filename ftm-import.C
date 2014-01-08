@@ -323,7 +323,7 @@ static void processDoc(xmlDoc * doc, unsigned char * data) {
             	s = &data[Channel::PCHANNEL_STRING_OFFSET + (i * Channel::STRING_SIZE)];
 
 			} else {
-				// assume its "home"
+				// assume its "Home"
             	d = &data[Channel::HOME_OFFSET];
             	s = &data[Channel::HOME_STRING_OFFSET];
 			}

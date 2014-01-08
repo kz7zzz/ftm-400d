@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 	    unsigned char * s = &data[Channel::HOME_STRING_OFFSET];
 	    auto_ptr<Channel> chn(decodeChannel(d, s));
 		if (chn.get()) {
-			chn->cname = "home";
+			chn->cname = "Home";
 			channel2xml(chn.get());
 		}
     }

@@ -108,7 +108,7 @@ const char * powers[] = {
 };
 
 const char * bands[] = {
-	"", "Air", "VHF", "GEN1", "UNF", "GEN2", "Unknown", "Unknown", "Unknown", NULL
+	"", "Air", "VHF", "Gen1", "UHF", "Gen2", "Unknown", "Unknown", "Unknown", NULL
 };
 
 const char * pchannels[] = {
