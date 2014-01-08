@@ -36,11 +36,6 @@ static Channel * decodeChannel(
     chn->skip = c[0] & 0x20U;
     chn->band = (c[0] & 0x07U) + 1;
 
-    switch (c[1] & 0x03U) {
-    case 0x02U: chn->offset = -600; break;
-    case 0x03U: chn->offset = +600; break;
-    }
-
 	chn->mode = (c[1] & 0x10U) >> 4; // probably more bits here to consider
 
 	chn->freq += 100 * 1000 * (c[2] & 0x0FU);
@@ -58,6 +53,15 @@ static Channel * decodeChannel(
     case 0x07U: def = "B"; break;
     }
 #endif
+
+	int offset = 600;
+	if (chn->freq >= 400000) offset=5000;
+
+    switch (c[1] & 0x03U) {
+    case 0x02U: chn->offset = -offset; break;
+    case 0x03U: chn->offset = +offset; break;
+    }
+
 
 	if (c[5] & 0x10U) {
         chn->tone = (c[9] & 0x1fU) + 1;
