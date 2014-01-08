@@ -165,10 +165,23 @@ static Channel * parseChannel(xmlDoc * doc, xmlNs * ns, xmlNode * node) {
 			cout << TAB "freq=" << c->freq << endl;
 
 		} else if (!strcmp((const char *)cur->name, "offset")) {
-			if (!strcmp(str, "+")) {
-				c->offset = +600;
-			} else if (!strcmp(str, "-")) {
-				c->offset = -600;
+			char *p = NULL;
+			bool neg= (str[0] == '-');
+			long l = strtol(str, &p, 10);
+			if (p && *p == '.') {
+				const static int m[3] = {100, 10, 1};
+				c->offset = l*1000;
+				l = 0;
+				p++;
+				for (int i=0; i<3; ++i) {
+					if (!p[i]) break;
+					c->offset += m[i] * (p[i] - '0');
+				}
+
+				if (neg && c->offset > 0) c->offset *= -1;
+
+		    } else {
+				c->offset = l;
 			}
 			cout << TAB "offset=" << c->offset << endl;
 
