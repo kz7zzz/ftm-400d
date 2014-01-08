@@ -104,7 +104,7 @@ const char * modes[] = {
 };
 
 const char * powers[] = {
-	"high", "meduim", "low", "unknown"
+	"high", "medium", "low", "unknown"
 };
 
 const char * bands[] = {

@@ -34,7 +34,7 @@ static Channel * decodeChannel(
 
     chn->name = data2str(s, Channel::STRING_SIZE);
     chn->skip = c[0] & 0x20U;
-    chn->band = c[0] & 0x07U + 1;
+    chn->band = (c[0] & 0x07U) + 1;
 
     switch (c[1] & 0x03U) {
     case 0x02U: chn->offset = -600; break;
