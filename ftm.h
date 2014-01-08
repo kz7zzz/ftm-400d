@@ -31,7 +31,7 @@ public:
 	Channel() :
 		bank(0),
 		slot(0),
-	    band(0),
+		band(0),
 		freq(0),
 		offset(0),
 		tone(0),
