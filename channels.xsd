@@ -6,14 +6,14 @@
     </xs:annotation>
 
     <xs:simpleType name="bank">
-        <xs:restriction base="xs:positiveInteger">
+        <xs:restriction base="xs:integer">
             <xs:minInclusive value="1"/>
             <xs:maxInclusive value="2"/>
         </xs:restriction>
     </xs:simpleType>
 
     <xs:simpleType name="slot">
-        <xs:restriction base="xs:positiveInteger">
+        <xs:restriction base="xs:integer">
             <xs:minInclusive value="1"/>
             <xs:maxInclusive value="500"/>
         </xs:restriction>
@@ -252,6 +252,7 @@
                 <xs:element name="mode" type="mode" default="FM" minOccurs="0"/>
                 <xs:element name="power" type="power" default="low" minOccurs="0"/>
                 <xs:element name="name" type="name" minOccurs="0"/>
+                <xs:element name="skip" type="xs:boolean" fixed="true" minOccurs="0"/>
                 <xs:any notNamespace="##local" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
             <xs:attribute name="name" type="cname" use="optional"/>
