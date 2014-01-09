@@ -167,6 +167,18 @@ int main(int argc, char *argv[])
 		<< TAB "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" << endl
 		<< TAB "xsi:schemaLocation=\"" SCHEMA_NS_URI " " SCHEMA_LOC_URI "\"" ">" << endl;
 
+	// Home channel
+	{
+		unsigned char * d = &data[Channel::HOME_OFFSET];
+		unsigned char * s = &data[Channel::HOME_STRING_OFFSET];
+		auto_ptr<Channel> chn(decodeChannel(d, s));
+		if (chn.get()) {
+			chn->cname = "Home";
+			channel2xml(chn.get());
+		}
+	}
+
+	// Bank 1
 	for (size_t i=0; i<Channel::NCHANNELS; ++i) {
 		unsigned char * d = &data[Channel::CHANNEL_TOP_OFFSET + (i * Channel::CHANNEL_SIZE)];
 		unsigned char * s = &data[Channel::CHANNEL_TOP_STRING_OFFSET + (i * Channel::STRING_SIZE)];
@@ -178,6 +190,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// Bank 2
 	for (size_t i=0; i<Channel::NCHANNELS; ++i) { // bottom
 		unsigned char * d = &data[Channel::CHANNEL_BOT_OFFSET + (i * Channel::CHANNEL_SIZE)];
 		unsigned char * s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (i * Channel::STRING_SIZE)];
@@ -189,16 +202,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	{
-		unsigned char * d = &data[Channel::HOME_OFFSET];
-		unsigned char * s = &data[Channel::HOME_STRING_OFFSET];
-		auto_ptr<Channel> chn(decodeChannel(d, s));
-		if (chn.get()) {
-			chn->cname = "Home";
-			channel2xml(chn.get());
-		}
-	}
-
+	// Programmable memory channels (for scanning)
 	for (size_t i=0; i<Channel::NPCHANNELS; ++i) {
 		unsigned char * d = &data[Channel::PCHANNEL_OFFSET + (i * Channel::CHANNEL_SIZE)];
 		unsigned char * s = &data[Channel::PCHANNEL_STRING_OFFSET + (i * Channel::STRING_SIZE)];
