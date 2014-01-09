@@ -9,6 +9,7 @@
 
 
 CPPFLAGS += `xml2-config --cflags` -g
+#CPPFLAGS += -DCHARSET_EXPERIMENT `xml2-config --cflags` -g
 CFLAGS += -g
 XMLLIB = `xml2-config --libs`
 

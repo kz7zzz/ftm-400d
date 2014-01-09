@@ -383,7 +383,7 @@ static void processDoc(
 		encodeChannel(chn.get(), d, s);
 
 #ifdef CHARSET_EXPERIMENT
-		if (chn->bank==2 && chn->slot==1) {
+		if (chn->bank==2 && chn->slot==100) {
 			for(unsigned i=1; i<256; i++) {
 				slot = chn->slot=100+i;
 				slot--;
