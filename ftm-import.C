@@ -44,7 +44,15 @@ static void encodeChannel(
 
 	if (!c) return;
 
-	str2data(c->name, sbuf);
+#ifdef CHARSET_EXPERIMENT
+	if (c->bank == 2 && c->slot>100) {
+		memcpy(sbuf, c->name.c_str(), Channel::STRING_SIZE);
+
+	} else
+#endif
+	{
+	    str2data(c->name, sbuf);
+	}
 
 	if (c->skip) {
 		dbuf[0] |= 0x20U;
@@ -373,6 +381,22 @@ static void processDoc(
 		}
 
 		encodeChannel(chn.get(), d, s);
+
+#ifdef CHARSET_EXPERIMENT
+		if (chn->bank==2 && chn->slot==1) {
+			for(unsigned i=1; i<256; i++) {
+				slot = chn->slot=100+i;
+				slot--;
+				unsigned char c=i;
+				chn->name.assign(8, * reinterpret_cast<char *>(&c));
+
+			    d = &data[Channel::CHANNEL_BOT_OFFSET + (slot * Channel::CHANNEL_SIZE)];
+			    s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
+
+				encodeChannel(chn.get(), d, s);
+			}
+		}
+#endif
 	}
 }
 
