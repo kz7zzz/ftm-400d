@@ -51,7 +51,7 @@ static void encodeChannel(
 	} else
 #endif
 	{
-	    str2data(c->name, sbuf);
+		str2data(c->name, sbuf);
 	}
 
 	if (c->skip) {
@@ -390,8 +390,8 @@ static void processDoc(
 				unsigned char c=i;
 				chn->name.assign(8, * reinterpret_cast<char *>(&c));
 
-			    d = &data[Channel::CHANNEL_BOT_OFFSET + (slot * Channel::CHANNEL_SIZE)];
-			    s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
+				d = &data[Channel::CHANNEL_BOT_OFFSET + (slot * Channel::CHANNEL_SIZE)];
+				s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
 
 				encodeChannel(chn.get(), d, s);
 			}
