@@ -32,42 +32,40 @@ static Channel * decodeChannel(
 
 	auto_ptr<Channel> chn(new Channel);
 
-	chn->name = data2str(s, Channel::STRING_SIZE);
-	chn->skip = c[0] & 0x20U;
+	chn->tag = data2str(s, Channel::TAG_SIZE);
+	chn->scan = (c[0] & 0x60U) >> 5;
+
 	chn->band = (c[0] & 0x07U) + 1;
 
-	chn->mode = (c[1] & 0x10U) >> 4; // probably more bits here to consider
+	chn->mode = (c[1] & 0x70U) >> 4;
 
-	chn->freq += 100 * 1000 * (c[2] & 0x0FU);
-	chn->freq += 10 * 1000 * ((c[3] & 0xF0U)>>4);
-	chn->freq += 1000 * (c[3] & 0x0FU);
-	chn->freq += 100 * ((c[4] & 0xF0U)>>4);
-	chn->freq += 10 * (c[4] & 0x0FU);
-	if (c[2] & 0x80U) chn->freq += 5;
-
-#if 0
-	// not sure about this
-	string def = " ";
-	switch (c[5] & 0x03U) {
-	case 0x06U: def = "T"; break;
-	case 0x07U: def = "B"; break;
-	}
-#endif
+	chn->rx += 100 * 1000 * (c[2] & 0x0FU);
+	chn->rx += 10 * 1000 * ((c[3] & 0xF0U)>>4);
+	chn->rx += 1000 * (c[3] & 0x0FU);
+	chn->rx += 100 * ((c[4] & 0xF0U)>>4);
+	chn->rx += 10 * (c[4] & 0x0FU);
+	if (c[2] & 0x80U) chn->rx += 5;
 
 	int offset = 600;
-	if (chn->freq >= 400000) offset=5000;
+	if (chn->rx >= 400000) offset=5000;
 
-	switch (c[1] & 0x03U) {
+	switch (c[1] & 0x07U) {
 	case 0x02U: chn->offset = -offset; break;
 	case 0x03U: chn->offset = +offset; break;
+	case 0x04U: // separate transmit frequency
+	    chn->tx += 100 * 1000 * (c[6] & 0x0FU);
+	    chn->tx += 10 * 1000 * ((c[7] & 0xF0U)>>4);
+	    chn->tx += 1000 * (c[7] & 0x0FU);
+	    chn->tx += 100 * ((c[8] & 0xF0U)>>4);
+	    chn->tx += 10 * (c[8] & 0x0FU);
+	    if (c[6] & 0x80U) chn->tx += 5;
 	}
 
-
-	if (c[5] & 0x10U) {
-		chn->tone = (c[9] & 0x1fU) + 1;
-	}
-
+	// c[5] & 0x0FU ?
+	chn->sql = (c[5] & 0xF0U) >> 4;
+	chn->tone = c[9] & 0x1fU;
 	chn->dcs = c[10] & 0x0fU;
+
 	chn->power = (c[9] & 0xc0U) >> 6;
 
 	return chn.release();
@@ -78,8 +76,8 @@ void channel2xml(
 {
 	cout << TAB << "<channel";
 
-	if (chn->cname.length()) {
-		cout << " name=\"" << chn->cname << "\"";
+	if (chn->memname.length()) {
+		cout << " name=\"" << chn->memname << "\"";
 	}
 
 	if (chn->bank>0) {
@@ -96,10 +94,14 @@ void channel2xml(
 		cout << TAB TAB << "<band>" << bands[chn->band] << "</band>" << endl;
 	}
 
-	cout << TAB TAB << "<frequency>" << chn->freq / 1000 << "."
-		<< setfill('0') << setw(3) << chn->freq % 1000 << "</frequency>" << endl;
+	cout << TAB TAB << "<frequency>" << chn->rx / 1000 << "."
+		 << setfill('0') << setw(3) << chn->rx % 1000 << "</frequency>" << endl;
 
-	if (chn->offset) {
+	if (chn->tx) {
+		cout << TAB TAB << "<txFrequency>" << chn->tx / 1000 << "."
+			<< setfill('0') << setw(3) << chn->tx % 1000 << "</txFrequency>" << endl;
+
+	} else if (chn->offset) {
 		int offset = abs(chn->offset);
 		cout << TAB TAB <<
 			"<offset>" << (chn->offset > 0 ? "+" : "-")
@@ -107,23 +109,30 @@ void channel2xml(
 				<< setfill('0') << setw(3) << offset % 1000 << "</offset>" << endl;
 	}
 
-	if (chn->tone) {
-		cout << TAB TAB << "<tone>" << tones[chn->tone-1] << "</tone>" << endl;
+	if (chn->sql) {
+	    cout << TAB TAB << "<sql>" << sqls[chn->sql] << "</sql>" << endl;
+	    cout << TAB TAB << "<tone>" << tones[chn->tone] << "</tone>" << endl;
 	}
-
-	cout << TAB TAB << "<mode>" << modes[chn->mode] << "</mode>" << endl;
-	cout << TAB TAB << "<power>" << powers[chn->power] << "</power>" << endl;
 
 	if (chn->dcs) {
 		cout << TAB TAB << "<dcs>" << dcsCodes[chn->dcs] << "</dcs>" << endl;
 	}
 
-	if (chn->name.length()) {
-		cout << TAB TAB << "<name>" << xmlsafe(chn->name) << "</name>" << endl;
+	if (chn->mode) {
+	    cout << TAB TAB << "<mode>" << modes[chn->mode] << "</mode>" << endl;
+    }
+
+	cout << TAB TAB << "<power>" << powers[chn->power] << "</power>" << endl;
+
+
+	if (chn->tag.length()) {
+		std::string safe(xmlsafe(chn->tag));
+		cout << TAB TAB << "<name>" << safe << "</name>" << endl;
+		cout << TAB TAB << "<tag>" << safe << "</tag>" << endl;
 	}
 
-	if (chn->skip) {
-		cout << TAB TAB << "<skip>true</skip>" << endl;
+	if (chn->scan) {
+		cout << TAB TAB << "<scan>" << scans[chn->scan] << "</scan>" << endl;
 	}
 
 	cout << TAB << "</channel>" << endl;
@@ -170,10 +179,10 @@ int main(int argc, char *argv[])
 	// Home channel
 	{
 		unsigned char * d = &data[Channel::HOME_OFFSET];
-		unsigned char * s = &data[Channel::HOME_STRING_OFFSET];
+		unsigned char * s = &data[Channel::HOME_TAG_OFFSET];
 		auto_ptr<Channel> chn(decodeChannel(d, s));
 		if (chn.get()) {
-			chn->cname = "Home";
+			chn->memname = "Home";
 			channel2xml(chn.get());
 		}
 	}
@@ -181,7 +190,7 @@ int main(int argc, char *argv[])
 	// Bank 1
 	for (size_t i=0; i<Channel::NCHANNELS; ++i) {
 		unsigned char * d = &data[Channel::CHANNEL_TOP_OFFSET + (i * Channel::CHANNEL_SIZE)];
-		unsigned char * s = &data[Channel::CHANNEL_TOP_STRING_OFFSET + (i * Channel::STRING_SIZE)];
+		unsigned char * s = &data[Channel::CHANNEL_TOP_TAG_OFFSET + (i * Channel::TAG_SIZE)];
 		auto_ptr<Channel> chn(decodeChannel(d, s));
 		if (chn.get()) {
 			chn->bank = 1;
@@ -193,7 +202,7 @@ int main(int argc, char *argv[])
 	// Bank 2
 	for (size_t i=0; i<Channel::NCHANNELS; ++i) { // bottom
 		unsigned char * d = &data[Channel::CHANNEL_BOT_OFFSET + (i * Channel::CHANNEL_SIZE)];
-		unsigned char * s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (i * Channel::STRING_SIZE)];
+		unsigned char * s = &data[Channel::CHANNEL_BOT_TAG_OFFSET + (i * Channel::TAG_SIZE)];
 		auto_ptr<Channel> chn(decodeChannel(d, s));
 		if (chn.get()) {
 			chn->bank = 2;
@@ -205,10 +214,10 @@ int main(int argc, char *argv[])
 	// Programmable memory channels (for scanning)
 	for (size_t i=0; i<Channel::NPCHANNELS; ++i) {
 		unsigned char * d = &data[Channel::PCHANNEL_OFFSET + (i * Channel::CHANNEL_SIZE)];
-		unsigned char * s = &data[Channel::PCHANNEL_STRING_OFFSET + (i * Channel::STRING_SIZE)];
+		unsigned char * s = &data[Channel::PCHANNEL_TAG_OFFSET + (i * Channel::TAG_SIZE)];
 		auto_ptr<Channel> chn(decodeChannel(d, s));
 		if (chn.get()) {
-			chn->cname = pchannels[i];
+			chn->memname = pchannels[i];
 			channel2xml(chn.get());
 		}
 	}

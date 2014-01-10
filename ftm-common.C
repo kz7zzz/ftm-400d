@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <memory>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -23,17 +24,44 @@
 
 using namespace std;
 
+const char * sqls[] = {
+	"noise",
+	"T-TX",
+	"T-TRX",
+	"T-REV",
+	"D-TRX",
+	"program",
+	"pager",
+	"D-TX",
+	"TT/DR",
+	"DT/TR",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};
+
+const char * scans[] = {
+	"",
+	"skip",
+	"select",
+	"unknown",
+	NULL
+};
+
 // symbols supported.  (note: # is used as a fill character here (not the radio))
 const unsigned char d2a[] =
-	"\0" "1234567"	 "89ABCDEF"
-	"GHIJKLMN"		 "OPQRSTUV"
-	"WXYZabcd"		 "efghijkl"
-	"mnopqrst"		 "uvwxyz!\""
+	"\0" "1234567"	   "89ABCDEF"
+	"GHIJKLMN"		   "OPQRSTUV"
+	"WXYZabcd"		   "efghijkl"
+	"mnopqrst"		   "uvwxyz!\""
 
-	"#$%&'()*"		 "+,-./:;<"
-	"=>?@[\\]^"		"_`{|}~\x82\x83"
+	"#$%&'()*"		   "+,-./:;<"
+	"=>?@[\\]^"		   "_`{|}~\x82\x83"
 	"\x84\x85\x86\x87 \0\0\0"
-						"\0\0\0\0\0\0\0\0"
+					   "\0\0\0\0\0\0\0\0"
 	"\0\0\0\0\0\0\0\0" "\0\0\0\0\0\0\0\0"
 
 	"\0\0\0\0\0\0\0\0" "\0\0\0\0\0\0\0\0"
@@ -56,6 +84,10 @@ const char * utf8[] = {
 	"\u00B1",	// PLUS-MINUS SIGN
 	"\u266A",	// EIGHTH NOTE
 	NULL
+};
+
+const unsigned char utf8data[] = {
+	0xb7U, 0xb8U, 0x5eU, 0x5fU, 0x60U, 0x61U, 0x62U, 0x63U
 };
 
 const unsigned char a2d[] = {
@@ -107,7 +139,7 @@ const char * dcsCodes[] = {
 };
 
 const char * modes[] = {
-	"FM", "AM", "2", "3"
+	"auto", "AM", "FM", "narrow FM"
 };
 
 const char * powers[] = {
@@ -169,7 +201,7 @@ string data2str(
 
 	for (size_t i=0; i<len; ++i) {
 		unsigned char d = s[i];
-		if (d == Channel::STRING_FILL) {
+		if (d == Channel::TAG_FILL) {
 			break;
 
 		} else {
@@ -190,8 +222,21 @@ string data2str(
 	return str;
 }
 
+int utf8len(const char * s) {
+	const unsigned char * u = reinterpret_cast<const unsigned char *>(s);
+	
+	if (*u < 0x80) return 1;
+
+	int i;
+	for (i=1; i<6; i++) {
+		if ((u[i] & 0xc0U) != 0x80U) break;
+	}
+
+	return i;
+}
+
 size_t str2data(const std::string & str, unsigned char * sbuf) {
-	size_t len = 1;
+	size_t len;
 	size_t j=0;
 	for (int i=0; i < str.length(); i+=len) {
 		unsigned char a = str[i];
@@ -201,17 +246,18 @@ size_t str2data(const std::string & str, unsigned char * sbuf) {
 			sbuf[j++] = a2d[a];
 
 		} else {
+			len = utf8len(&str.c_str()[i]);
 			int x;
 			for (x=0; utf8[x]; x++) {
-				len = strlen(utf8[x]);
-				if (!strncmp(&str.c_str()[i], utf8[x], len)) {
+				int ulen = strlen(utf8[x]);
+				if (len == ulen && !memcmp(&str.c_str()[i], utf8[x], len)) {
 					break;
 				}
 			}
 			if (utf8[x]) {
-				sbuf[j++] = a2d[0x80+x];
+				sbuf[j++] = utf8data[x];
+
 			} else {
-				len = 1;
 				sbuf[j++] = a2d['?']; // unrecognized
 			}
 		}

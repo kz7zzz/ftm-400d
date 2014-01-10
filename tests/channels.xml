@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channels xmlns="http://boolean.net/ftm400dr/0" xmlns:ext="http://boolean.net/ftm400dr/ext/0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://boolean.net/ftm400dr/0 ../channels.xsd">
+
+	<!-- leave home and slot=1 in both banks alone -->
+	
+	<!-- should match slot=1 in the respective banks (except for added tags) -->
+	<channel bank="1" slot="3">
+		<band>VHF</band>
+		<frequency>144.000</frequency>
+		<power>high</power>
+		<tag>== b1s1</tag>
+	</channel>
+	<channel bank="2" slot="3">
+		<band>UHF</band>
+		<frequency>430.000</frequency>
+		<power>high</power>
+		<tag>== b2s1</tag>
+	</channel>
+	
+	<!-- power and 5khz step -->
+	<channel slot="17">
+		<band>VHF</band>
+		<frequency>145.555</frequency>
+		<power>high</power>
+		<tag>145.555h</tag>
+	</channel>
+	<channel slot="18">
+		<band>VHF</band>
+		<frequency>145.555</frequency>
+		<power>medium</power>
+		<tag>145.555m</tag>
+	</channel>
+	<channel slot="19">
+		<band>VHF</band>
+		<frequency>145.555</frequency>
+		<power>low</power>
+		<tag>145.555l</tag>
+	</channel>
+	<channel slot="20">
+		<band>UHF</band>
+		<frequency>435.525</frequency>
+		<power>high</power>
+		<tag>435.525h</tag>
+	</channel>
+	<channel slot="21">
+		<band>UHF</band>
+		<frequency>435.525</frequency>
+		<power>medium</power>
+		<tag>435.525m</tag>
+	</channel>
+	<channel slot="22">
+		<band>UHF</band>
+		<frequency>435.525</frequency>
+		<power>low</power>
+		<tag>435.525l</tag>
+	</channel>
+	
+	<!-- scan skip and select -->
+	<channel slot="23">
+		<band>UHF</band>
+		<frequency>435.525</frequency>
+		<power>low</power>
+		<tag>skip</tag>
+		<scan>skip</scan>
+	</channel>
+	<channel slot="24">
+		<band>UHF</band>
+		<frequency>435.525</frequency>
+		<power>low</power>
+		<tag>select</tag>
+		<scan>select</scan>
+	</channel>
+	
+	<!-- standard offsets -->
+	<channel slot="25">
+		<band>VHF</band>
+		<frequency>145.430</frequency>
+		<tag>offset0</tag>
+	</channel>
+	<channel slot="26">
+		<band>VHF</band>
+		<frequency>145.430</frequency>
+		<offset>-0.600</offset>
+		<tag>offset-</tag>
+	</channel>
+	<channel slot="27">
+		<band>VHF</band>
+		<frequency>147.270</frequency>
+		<tag>offset0</tag>
+	</channel>
+	<channel slot="28">
+		<band>VHF</band>
+		<frequency>147.270</frequency>
+		<offset>+0.600</offset>
+		<tag>offset+</tag>
+	</channel>
+	<channel slot="29">
+		<band>UHF</band>
+		<frequency>449.650</frequency>
+		<tag>-0</tag>
+	</channel>
+	<channel slot="30">
+		<band>UHF</band>
+		<frequency>449.650</frequency>
+		<offset>-5</offset>
+		<tag>-5</tag>
+	</channel>
+	<channel slot="31">
+		<band>UHF</band>
+		<frequency>441.250</frequency>
+		<tag>+0</tag>
+	</channel>
+	<channel slot="32">
+		<band>UHF</band>
+		<frequency>441.250</frequency>
+		<offset>+5</offset>
+		<tag>+5</tag>
+	</channel>
+	
+	<!-- freq splits -->
+	<channel slot="33">
+		<band>VHF</band>
+		<frequency>145.430</frequency>
+		<tag>no-split</tag>
+	</channel>
+	<channel slot="34">
+		<band>VHF</band>
+		<frequency>145.430</frequency>
+		<txFrequency>147.430</txFrequency>
+		<tag>split up</tag>
+	</channel>
+	<channel slot="35">
+		<band>VHF</band>
+		<frequency>145.430</frequency>
+		<txFrequency>143.430</txFrequency>
+		<tag>split dn</tag>
+	</channel>
+	<channel slot="36">
+		<band>VHF</band>
+		<frequency>145.430</frequency>
+		<txFrequency>145.430</txFrequency>
+		<tag>split ==</tag>
+	</channel>
+
+	<channel slot="37">
+		<band>UHF</band>
+		<frequency>441.250</frequency>
+		<tag>no-split</tag>
+	</channel>
+	<channel slot="38">
+		<band>UHF</band>
+		<frequency>441.250</frequency>
+		<txFrequency>449.250</txFrequency>
+		<tag>split up</tag>
+	</channel>
+	<channel slot="39">
+		<band>UHF</band>
+		<frequency>441.250</frequency>
+		<txFrequency>440.250</txFrequency>
+		<tag>split dn</tag>
+	</channel>
+	<channel slot="40">
+		<band>UHF</band>
+		<frequency>441.250</frequency>
+		<txFrequency>441.250</txFrequency>
+		<tag>split ==</tag>
+	</channel>
+	
+	<!-- PL -->
+	<channel slot="41">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<tag>no SQL</tag>
+	</channel>
+	<channel slot="42">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>T-TX</sql>
+		<tone>67.0</tone>
+		<tag>PL 67.0</tag>
+	</channel>
+	<channel slot="43">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>T-TX</sql>
+		<tone>85.4</tone>
+		<tag>PL 85.4</tag>
+	</channel>
+	<channel slot="44">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>T-TX</sql>
+		<tone>100.0</tone>
+		<tag>PL 100.0</tag>
+	</channel>
+	<channel slot="45">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>T-TX</sql>
+		<tone>123</tone>
+		<tag>PL 123.0</tag>
+	</channel>
+	<channel slot="46">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>T-TX</sql>
+		<tone>151.4</tone>
+		<tag>PL 151.4</tag>
+	</channel>
+	<channel slot="47">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>T-TX</sql>
+		<tone>203.5</tone>
+		<tag>PL 203.5</tag>
+	</channel>
+	<channel slot="48">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>T-TX</sql>
+		<tone>254.1</tone>
+		<tag>PL 254.1</tag>
+	</channel>
+	
+	<!-- DCS -->
+	<channel slot="49">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<tag>no DCS</tag>
+	</channel>
+	<channel slot="50">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>D-TRX</sql>
+		<dcs>023</dcs>
+		<tag>DCS 023</tag>
+	</channel>
+	<channel slot="51">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>D-TRX</sql>
+		<dcs>131</dcs>
+		<tag>DCS 131</tag>
+	</channel>
+	<channel slot="52">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>D-TRX</sql>
+		<dcs>244</dcs>
+		<tag>DCS 244</tag>
+	</channel>
+	<channel slot="53">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>D-TRX</sql>
+		<dcs>315</dcs>
+		<tag>DCS 315</tag>
+	</channel>
+	<channel slot="54">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>D-TRX</sql>
+		<dcs>503</dcs>
+		<tag>DCS 503</tag>
+	</channel>
+	<channel slot="55">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>D-TRX</sql>
+		<dcs>632</dcs>
+		<tag>DCS 632</tag>
+	</channel>
+	<channel slot="56">
+		<band>UHF</band>
+		<frequency>444.440</frequency>
+		<offset>+5.000</offset>
+		<sql>D-TRX</sql>
+		<dcs>754</dcs>
+		<tag>DCS 754</tag>
+	</channel>
+	
+	<!-- tag symbols -->
+	<channel slot="65">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>01234567</tag>
+	</channel>
+	<channel slot="66">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>89ABCDEF</tag>
+	</channel>
+	<channel slot="67">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>GHIJKLMN</tag>
+	</channel>
+	<channel slot="68">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>OPQRSTUV</tag>
+	</channel>
+	<channel slot="69">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>WXYZabcd</tag>
+	</channel>
+	<channel slot="70">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>efghijkl</tag>
+	</channel>
+	<channel slot="71">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>mnopqrst</tag>
+	</channel>
+	<channel slot="72">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>uvwxyz!"</tag>
+	</channel>
+	<channel slot="73">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>#$%&amp;'()*</tag>
+	</channel>
+	<channel slot="74">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>+,-./:;&lt;</tag>
+	</channel>
+	<channel slot="75">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>=&gt;?@[\]^</tag>
+	</channel>
+	<channel slot="76">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>_`{|}~</tag>
+	</channel>
+	<channel slot="77">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>↑ ↓ → ←</tag>
+	</channel>
+	<channel slot="78">
+		<band>VHF</band>
+		<frequency>146.520</frequency>
+		<tag>¥ ∙ ± ♪</tag>
+	</channel>
+</channels>

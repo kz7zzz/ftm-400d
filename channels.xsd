@@ -44,6 +44,21 @@
             <xs:maxInclusive value="100"/>
         </xs:restriction>
     </xs:simpleType>
+    
+    <xs:simpleType name="sql">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="noise"/>
+            <xs:enumeration value="T-TX"/>
+            <xs:enumeration value="T-TRX"/>
+            <xs:enumeration value="T-REV"/>
+            <xs:enumeration value="D-TRX"/>
+            <xs:enumeration value="program"/>
+            <xs:enumeration value="pager"/>
+            <xs:enumeration value="D-TX"/>
+            <xs:enumeration value="TT/DR"/>
+            <xs:enumeration value="DT/TR"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:simpleType name="tFrequency">
         <xs:restriction base="xs:decimal">
@@ -190,12 +205,14 @@
 
     <xs:simpleType name="mode">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="FM"/>
+            <xs:enumeration value="auto"/>
             <xs:enumeration value="AM"/>
+            <xs:enumeration value="FM"/>
+            <xs:enumeration value="narrow FM"/>
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="cname">
+    <xs:simpleType name="memname">
         <xs:restriction base="xs:string">
             <xs:enumeration value="Home"/>
             <xs:enumeration value="P1U"/>
@@ -219,7 +236,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="name">
+    <xs:simpleType name="tag">
         <xs:restriction base="xs:string">
             <xs:maxLength value="8"/>
         </xs:restriction>
@@ -234,9 +251,19 @@
                         <xs:documentation>Frequency in Mhz</xs:documentation>
                     </xs:annotation>
                 </xs:element>
+                <xs:element name="txFrequency" type="cFrequency" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Frequency in Mhz</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
                 <xs:element name="offset" type="oFrequency" default="0" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation>Offset in Mhz</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="sql" type="sql" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>SQL mode</xs:documentation>
                     </xs:annotation>
                 </xs:element>
                 <xs:element name="tone" type="tFrequency" minOccurs="0">
@@ -249,13 +276,14 @@
                         <xs:documentation>DCS by code</xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="mode" type="mode" default="FM" minOccurs="0"/>
+                <xs:element name="mode" type="mode" default="auto" minOccurs="0"/>
                 <xs:element name="power" type="power" default="low" minOccurs="0"/>
-                <xs:element name="name" type="name" minOccurs="0"/>
+                <xs:element name="tag" type="tag" minOccurs="0"/>
+                <xs:element name="name" type="xs:string" minOccurs="0"/>
                 <xs:element name="skip" type="xs:boolean" fixed="true" minOccurs="0"/>
                 <xs:any notNamespace="##local" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
-            <xs:attribute name="name" type="cname" use="optional"/>
+            <xs:attribute name="name" type="memname" use="optional"/>
             <xs:attribute name="bank" type="bank" use="optional"/>
             <xs:attribute name="slot" type="slot" use="optional"/>
         </xs:complexType>

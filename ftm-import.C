@@ -35,40 +35,34 @@ static void encodeChannel(
 	unsigned char * dbuf,
 	unsigned char * sbuf)
 {
-	memset(sbuf, Channel::STRING_FILL, Channel::STRING_SIZE);
+	memset(sbuf, Channel::TAG_FILL, Channel::TAG_SIZE);
 	memset(dbuf, 0, Channel::CHANNEL_SIZE);
-
-	dbuf[5]  = 0x07U;
-	dbuf[11] = (c->bank < 2) ? 0x8fU : 0x0fU;
-	dbuf[13] = 0x64U;
 
 	if (!c) return;
 
 #ifdef CHARSET_EXPERIMENT
 	if (c->bank == 2 && c->slot>100) {
-		memcpy(sbuf, c->name.c_str(), Channel::STRING_SIZE);
+		memcpy(sbuf, c->tag.c_str(), Channel::TAG_SIZE);
 
 	} else
 #endif
 	{
-		str2data(c->name, sbuf);
+		str2data(c->tag, sbuf);
 	}
 
-	if (c->skip) {
-		dbuf[0] |= 0x20U;
-	}
+	dbuf[0] |= 0x60U & (c->scan << 5);
 
 	if (c->band) {
 		dbuf[0] |= 0x07U & (c->band-1);
 
-	} else if (c->freq > 400*1000) {
+	} else if (c->rx > 400*1000) {
 		dbuf[0] |= 0x03U; /* UHF */
 
 	} else {
 		dbuf[0] |= 0x01U; /* VHF */
 	}
 
-	unsigned x = c->freq;
+	unsigned x = c->rx;
 	unsigned rem = x % 10;
 	if (rem >=  5) {
 		dbuf[2] |= 0x80U;		// 5Hz
@@ -95,19 +89,11 @@ static void encodeChannel(
 		dbuf[1] |= 0x02U; // -
 	}
 
-	// probably has more bits
-	dbuf[1] |= 0x10U & (c->mode << 4);
-
-	if (c->tone) {
-		dbuf[5] |= 0x10U;
-		dbuf[9] |= 0x1fU & (c->tone-1);
-	}
-
-	if (c->dcs) {
-		dbuf[10] |= 0x1fU & c->dcs;
-	}
-
+	dbuf[1] |= 0x70U & (c->mode << 4);
+	dbuf[5] |= 0xF0U & (c->sql << 4);
 	dbuf[9] |= 0xc0U & (c->power << 6);
+	dbuf[9] |= 0x1fU & c->tone;
+	dbuf[10] |= 0x1fU & c->dcs;
 
 	dbuf[0] |= 0x80U; // programmed 
 }
@@ -122,8 +108,8 @@ static Channel * parseChannel(
 
 	str = (const char *) xmlGetProp(node, (const xmlChar *)"name");
 	if (str) {
-		c->cname = str;
-		cout << "Channel: " << c->cname << endl;
+		c->memname = str;
+		cout << "Channel: " << c->memname << endl;
 
 	} else {
 		str = (const char *) xmlGetProp(node, (const xmlChar *)"bank");
@@ -154,7 +140,7 @@ static Channel * parseChannel(
 
 		if (!strcmp((const char *)cur->name, "band")) {
 			for (int i=1; bands[i]; i++) {
-				if (!strcmp(str, bands[i])) {
+				if (!strcasecmp(str, bands[i])) {
 					c->band = i;
 					break;	
 				}
@@ -166,19 +152,38 @@ static Channel * parseChannel(
 			long l = strtol(str, &p, 10);
 			if (p && *p == '.') {
 				const static int m[3] = {100, 10, 1};
-				c->freq = l*1000;
+				c->rx = l*1000;
 				l = 0;
 				p++;
 				for (int i=0; i<3; ++i) {
 					if (!p[i]) break;
-					c->freq += m[i] * (p[i] - '0');
+					c->rx += m[i] * (p[i] - '0');
 				}
 
 			} else {
-				c->freq = l;
+				c->rx = l;
 			}
 
-			cout << TAB "freq=" << c->freq << endl;
+			cout << TAB "rx=" << c->rx << endl;
+
+		} else if (!strcmp((const char *)cur->name, "txFrequency")) {
+			char *p = NULL;
+			long l = strtol(str, &p, 10);
+			if (p && *p == '.') {
+				const static int m[3] = {100, 10, 1};
+				c->tx = l*1000;
+				l = 0;
+				p++;
+				for (int i=0; i<3; ++i) {
+					if (!p[i]) break;
+					c->tx += m[i] * (p[i] - '0');
+				}
+
+			} else {
+				c->tx = l;
+			}
+
+			cout << TAB "tx=" << c->tx << endl;
 
 		} else if (!strcmp((const char *)cur->name, "offset")) {
 			char *p = NULL;
@@ -201,63 +206,76 @@ static Channel * parseChannel(
 			}
 			cout << TAB "offset=" << c->offset << endl;
 
+		} else if (!strcmp((const char *)cur->name, "sql")) {
+			for (int i=1; sqls[i]; i++) {
+				if (!strcasecmp((const char *)str, sqls[i])) {
+					c->sql = i;
+					break;
+				}
+			}
+
+			if (!c->sql) {
+				cerr << TAB "Bad SQL: " << str << endl;
+			}
+			cout << TAB "sql=" << c->sql << endl;
+
 		} else if (!strcmp((const char *)cur->name, "tone")) {
 			long l = strtol(str, NULL, 10);
 			switch (l) {
-			case 67: c->tone = 1; break;
-			case 69: c->tone = 2; break;
-			case 71: c->tone = 3; break;
-			case 74: c->tone = 4; break;
-			case 77: c->tone = 5; break;
-			case 79: c->tone = 6; break;
-			case 82: c->tone = 7; break;
-			case 85: c->tone = 8; break;
-			case 88: c->tone = 9; break;
-			case 91: c->tone = 10; break;
-			case 94: c->tone = 11; break;
-			case 97: c->tone = 12; break;
-			case 100: c->tone = 13; break;
-			case 103: c->tone = 14; break;
-			case 107: c->tone = 15; break;
-			case 110: c->tone = 16; break;
-			case 114: c->tone = 17; break;
-			case 118: c->tone = 18; break;
-			case 123: c->tone = 19; break;
-			case 127: c->tone = 20; break;
-			case 131: c->tone = 21; break;
-			case 136: c->tone = 22; break;
-			case 141: c->tone = 23; break;
-			case 146: c->tone = 24; break;
-			case 151: c->tone = 25; break;
-			case 156: c->tone = 26; break;
-			case 162: c->tone = 27; break;
-			case 167: c->tone = 28; break;
-			case 173: c->tone = 29; break;
-			case 179: c->tone = 30; break;
-			case 186: c->tone = 31; break;
-			case 192: c->tone = 32; break;
-			case 203: c->tone = 33; break;
-			case 206: c->tone = 34; break;
-			case 210: c->tone = 35; break;
-			case 218: c->tone = 36; break;
-			case 225: c->tone = 37; break;
-			case 229: c->tone = 38; break;
-			case 233: c->tone = 39; break;
-			case 241: c->tone = 40; break;
-			case 250: c->tone = 41; break;
-			case 254: c->tone = 42; break;
+			case 67: c->tone = 0; break;
+			case 69: c->tone = 1; break;
+			case 71: c->tone = 2; break;
+			case 74: c->tone = 3; break;
+			case 77: c->tone = 4; break;
+			case 79: c->tone = 5; break;
+			case 82: c->tone = 8; break;
+			case 85: c->tone = 7; break;
+			case 88: c->tone = 8; break;
+			case 91: c->tone = 9; break;
+			case 94: c->tone = 10; break;
+			case 97: c->tone = 11; break;
+			case 100: c->tone = 12; break;
+			case 103: c->tone = 13; break;
+			case 107: c->tone = 14; break;
+			case 110: c->tone = 15; break;
+			case 114: c->tone = 16; break;
+			case 118: c->tone = 17; break;
+			case 123: c->tone = 18; break;
+			case 127: c->tone = 19; break;
+			case 131: c->tone = 20; break;
+			case 136: c->tone = 21; break;
+			case 141: c->tone = 22; break;
+			case 146: c->tone = 23; break;
+			case 151: c->tone = 24; break;
+			case 156: c->tone = 25; break;
+			case 162: c->tone = 26; break;
+			case 167: c->tone = 27; break;
+			case 173: c->tone = 28; break;
+			case 179: c->tone = 29; break;
+			case 186: c->tone = 30; break;
+			case 192: c->tone = 31; break;
+			case 203: c->tone = 32; break;
+			case 206: c->tone = 33; break;
+			case 210: c->tone = 34; break;
+			case 218: c->tone = 35; break;
+			case 225: c->tone = 36; break;
+			case 229: c->tone = 37; break;
+			case 233: c->tone = 38; break;
+			case 241: c->tone = 39; break;
+			case 250: c->tone = 40; break;
+			case 254: c->tone = 41; break;
 			default:
 				cerr << TAB "Bad tone: " << str << endl;
 			}
 
 			if (c->tone) {
-				cout << TAB "tone=" << tones[c->tone-1] << " (" << c->tone << ")" << endl;
-				assert(!strncmp(str, tones[c->tone-1], strlen(str)));
+				cout << TAB "tone=" << tones[c->tone] << " (" << c->tone << ")" << endl;
+				assert(!strncmp(str, tones[c->tone], strlen(str)));
 			}
 
 		} else if (!strcmp((const char *)cur->name, "dcs")) {
 			for (int i=1; dcsCodes[i]; i++) {
-				if (!strcmp((const char *)str, dcsCodes[i])) {
+				if (!strcasecmp((const char *)str, dcsCodes[i])) {
 					c->dcs = i;
 					break;
 				}
@@ -266,30 +284,54 @@ static Channel * parseChannel(
 			if (!c->dcs) {
 				cerr << TAB "Bad DCS: " << str << endl;
 			}
+			cout << TAB "dcs=" << c->dcs << endl;
 
 		} else if (!strcmp((const char *)cur->name, "mode")) {
-			if (!strcmp(str, "AM")) {
-				c->mode = 1;
+			for (int i=0; modes[i]; i++) {
+				if (!strcasecmp((const char *)str, modes[i])) {
+					c->mode = i;
+					break;
+				}
 			}
 			cout << TAB "mode=" << c->mode << endl;
 
 		} else if (!strcmp((const char *)cur->name, "power")) {
-			if (!strcmp(str, "high")) {
+			if (!strcasecmp(str, "high")) {
 				c->power = 0;
-			} else if (!strcmp(str, "medium")) {
+			} else if (!strcasecmp(str, "medium")) {
 				c->power = 1;
-			} else if (!strcmp(str, "low")) {
+			} else if (!strcasecmp(str, "low")) {
 				c->power = 2;
 			}
 			cout << TAB "power=" << c->power << endl;
 
 		} else if (!strcmp((const char *)cur->name, "name") && str) {
-			c->name = str;
-			if (c->name.length() > 8) c->name.resize(8);
-			cout << TAB "name=" << c->name << endl;
+			if (c->tag.empty()) {
+			    c->tag = str;
+			    if (c->tag.length() > Channel::TAG_SIZE) c->tag.resize(Channel::TAG_SIZE);
+			    cout << TAB "name=" << c->tag << endl;
 
-		} else if (!strcmp((const char *)cur->name, "skip")) {
-			c->skip = !strcmp((const char *)str, "true");
+			} else {
+			    cout << TAB "name ignored (have tag)" << endl;
+			}
+
+		} else if (!strcmp((const char *)cur->name, "tag") && str) {
+			c->tag = str;
+			if (c->tag.length() > Channel::TAG_SIZE) c->tag.resize(Channel::TAG_SIZE);
+			cout << TAB "tag=" << c->tag << endl;
+
+		} else if (!strcmp((const char *)cur->name, "scan")) {
+			for (int i=1; scans[i]; i++) {
+				if (!strcasecmp((const char *)str, scans[i])) {
+					c->scan = i;
+					break;
+				}
+			}
+
+			if (!c->scan) {
+				cerr << TAB "Bad scan: " << str << endl;
+			}
+			cout << TAB "scan=" << c->scan << endl;
 		}
 	}
 
@@ -336,7 +378,7 @@ static void processDoc(
 		}
 
 		vector<unsigned char> cdata(Channel::CHANNEL_SIZE);
-		vector<unsigned char> sdata(Channel::STRING_SIZE);
+		vector<unsigned char> sdata(Channel::TAG_SIZE);
 
 		int slot = chn->slot ? chn->slot : n++;
 		slot--;
@@ -344,26 +386,26 @@ static void processDoc(
 		unsigned char * d;
 		unsigned char * s;
 
-		if (chn->cname.length()) {
+		if (chn->memname.length()) {
 			int i;
 
 			for(i=0; i<Channel::NPCHANNELS; i++) {
-				if (!strcmp(pchannels[i], chn->cname.c_str())) break;
+				if (!strcmp(pchannels[i], chn->memname.c_str())) break;
 			}
 
 			if (i < Channel::NPCHANNELS) {
 				d = &data[Channel::PCHANNEL_OFFSET + (i * Channel::CHANNEL_SIZE)];
-				s = &data[Channel::PCHANNEL_STRING_OFFSET + (i * Channel::STRING_SIZE)];
+				s = &data[Channel::PCHANNEL_TAG_OFFSET + (i * Channel::TAG_SIZE)];
 
 			} else {
 				// assume its "Home"
 				d = &data[Channel::HOME_OFFSET];
-				s = &data[Channel::HOME_STRING_OFFSET];
+				s = &data[Channel::HOME_TAG_OFFSET];
 			}
 
 		} else if (chn->bank < 2) {
 			d = &data[Channel::CHANNEL_TOP_OFFSET + (slot * Channel::CHANNEL_SIZE)];
-			s = &data[Channel::CHANNEL_TOP_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
+			s = &data[Channel::CHANNEL_TOP_TAG_OFFSET + (slot * Channel::TAG_SIZE)];
 
 			if (slot>=Channel::NCHANNELS) {
 				cerr << "too many bank 1 channels, skipping";
@@ -372,7 +414,7 @@ static void processDoc(
 
 		} else {
 			d = &data[Channel::CHANNEL_BOT_OFFSET + (slot * Channel::CHANNEL_SIZE)];
-			s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
+			s = &data[Channel::CHANNEL_BOT_TAG_OFFSET + (slot * Channel::TAG_SIZE)];
 
 			if (slot>=Channel::NCHANNELS) {
 				cerr << "too many bank 1 channels, skipping";
@@ -388,10 +430,10 @@ static void processDoc(
 				slot = chn->slot=100+i;
 				slot--;
 				unsigned char c=i;
-				chn->name.assign(8, * reinterpret_cast<char *>(&c));
+				chn->tag.assign(8, * reinterpret_cast<char *>(&c));
 
 				d = &data[Channel::CHANNEL_BOT_OFFSET + (slot * Channel::CHANNEL_SIZE)];
-				s = &data[Channel::CHANNEL_BOT_STRING_OFFSET + (slot * Channel::STRING_SIZE)];
+				s = &data[Channel::CHANNEL_BOT_TAG_OFFSET + (slot * Channel::TAG_SIZE)];
 
 				encodeChannel(chn.get(), d, s);
 			}
