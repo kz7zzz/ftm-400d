@@ -20,7 +20,7 @@ public:
 	int band;
 	int rx;		// in hz
 	int tx;		// in hz
-	int offset; // in hz
+	int offset; // 0, -1, +1
 	int sql;
 	int tone;
 	int dcs;

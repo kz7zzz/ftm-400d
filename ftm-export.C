@@ -46,12 +46,9 @@ static Channel * decodeChannel(
 	chn->rx += 10 * (c[4] & 0x0FU);
 	if (c[2] & 0x80U) chn->rx += 5;
 
-	int offset = 600;
-	if (chn->rx >= 400000) offset=5000;
-
 	switch (c[1] & 0x07U) {
-	case 0x02U: chn->offset = -offset; break;
-	case 0x03U: chn->offset = +offset; break;
+	case 0x02U: chn->offset = -1; break;
+	case 0x03U: chn->offset = +1; break;
 	case 0x04U: // separate transmit frequency
 	    chn->tx += 100 * 1000 * (c[6] & 0x0FU);
 	    chn->tx += 10 * 1000 * ((c[7] & 0xF0U)>>4);
@@ -102,11 +99,11 @@ void channel2xml(
 			<< setfill('0') << setw(3) << chn->tx % 1000 << "</txFrequency>" << endl;
 
 	} else if (chn->offset) {
-		int offset = abs(chn->offset);
-		cout << TAB TAB <<
-			"<offset>" << (chn->offset > 0 ? "+" : "-")
-				<< offset / 1000 << "."
-				<< setfill('0') << setw(3) << offset % 1000 << "</offset>" << endl;
+		if (chn->offset > 0) {
+			cout << TAB TAB << "<offset>+</offset>" << endl;
+		} else {
+			cout << TAB TAB << "<offset>-</offset>" << endl;
+		}
 	}
 
 	if (chn->sql) {

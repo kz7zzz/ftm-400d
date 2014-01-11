@@ -62,29 +62,56 @@ static void encodeChannel(
 		dbuf[0] |= 0x01U; /* VHF */
 	}
 
-	unsigned x = c->rx;
-	unsigned rem = x % 10;
-	if (rem >=  5) {
-		dbuf[2] |= 0x80U;		// 5Hz
+	{
+	    unsigned x = c->rx;
+	    unsigned rem = x % 10;
+	    if (rem >=  5) {
+		    dbuf[2] |= 0x80U;		// 5Hz
+	    }
+	    x /= 10;
+	    rem = x % 10;
+	    dbuf[4] |= 0x0F & rem;		// 10Hz
+	    x /= 10;
+	    rem = x % 10;
+	    dbuf[4] |= 0xF0 & (rem<<4); // 100Hz
+	    x /= 10;
+	    rem = x % 10;
+	    dbuf[3] |= 0x0F & rem;		// Mhz
+	    x /= 10;
+	    rem = x % 10;
+	    dbuf[3] |= 0xF0 & (rem<<4); // 10Mhz
+	    x /= 10;
+	    rem = x % 10;
+	    dbuf[2] |= 0x0F & rem;		// 100Mhz
 	}
-	x /= 10;
-	rem = x % 10;
-	dbuf[4] |= 0x0F & rem;		// 10Hz
-	x /= 10;
-	rem = x % 10;
-	dbuf[4] |= 0xF0 & (rem<<4); // 100Hz
-	x /= 10;
-	rem = x % 10;
-	dbuf[3] |= 0x0F & rem;		// Mhz
-	x /= 10;
-	rem = x % 10;
-	dbuf[3] |= 0xF0 & (rem<<4); // 10Mhz
-	x /= 10;
-	rem = x % 10;
-	dbuf[2] |= 0x0F & rem;		// 100Mhz
 
-	if (c->offset > 0) {
+	if (c->tx) {
+	    unsigned x = c->tx;
+	    unsigned rem = x % 10;
+	    if (rem >=  5) {
+		    dbuf[6] |= 0x80U;		// 5Hz
+	    }
+	    x /= 10;
+	    rem = x % 10;
+	    dbuf[8] |= 0x0FU & rem;		// 10Hz
+	    x /= 10;
+	    rem = x % 10;
+	    dbuf[8] |= 0xF0U & (rem<<4); // 100Hz
+	    x /= 10;
+	    rem = x % 10;
+	    dbuf[7] |= 0x0FU & rem;		// Mhz
+	    x /= 10;
+	    rem = x % 10;
+	    dbuf[7] |= 0xF0U & (rem<<4); // 10Mhz
+	    x /= 10;
+	    rem = x % 10;
+	    dbuf[6] |= 0x0FU & rem;		// 100Mhz
+
+		dbuf[1] |= 0x04U;
+
+	} else if (c->offset > 0) {
 		dbuf[1] |= 0x03U; // +
+
 	} else if (c->offset < 0) {
 		dbuf[1] |= 0x02U; // -
 	}
@@ -186,23 +213,13 @@ static Channel * parseChannel(
 			cout << TAB "tx=" << c->tx << endl;
 
 		} else if (!strcmp((const char *)cur->name, "offset")) {
-			char *p = NULL;
-			bool neg= (str[0] == '-');
-			long l = strtol(str, &p, 10);
-			if (p && *p == '.') {
-				const static int m[3] = {100, 10, 1};
-				c->offset = l*1000;
-				l = 0;
-				p++;
-				for (int i=0; i<3; ++i) {
-					if (!p[i]) break;
-					c->offset += m[i] * (p[i] - '0');
-				}
-
-				if (neg && c->offset > 0) c->offset *= -1;
-
-			} else {
-				c->offset = l;
+			switch (*str) {
+			case '-':
+				c->offset = -1;
+				break;
+			case '+':
+				c->offset = +1;
+				break;
 			}
 			cout << TAB "offset=" << c->offset << endl;
 

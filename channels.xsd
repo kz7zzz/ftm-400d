@@ -38,10 +38,10 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="oFrequency">
-        <xs:restriction base="xs:decimal">
-            <xs:minInclusive value="-100"/>
-            <xs:maxInclusive value="100"/>
+    <xs:simpleType name="offset">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="+"/>
+            <xs:enumeration value="-"/>
         </xs:restriction>
     </xs:simpleType>
     
@@ -256,9 +256,9 @@
                         <xs:documentation>Frequency in Mhz</xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="offset" type="oFrequency" default="0" minOccurs="0">
+                <xs:element name="offset" type="offset" minOccurs="0">
                     <xs:annotation>
-                        <xs:documentation>Offset in Mhz</xs:documentation>
+                        <xs:documentation>+ or -</xs:documentation>
                     </xs:annotation>
                 </xs:element>
                 <xs:element name="sql" type="sql" minOccurs="0">
