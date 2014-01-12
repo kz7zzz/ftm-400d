@@ -39,29 +39,33 @@ static Channel * decodeChannel(
 
 	chn->mode = (c[1] & 0x70U) >> 4;
 
-	chn->rx += 100 * 1000 * (c[2] & 0x0FU);
-	chn->rx += 10 * 1000 * ((c[3] & 0xF0U)>>4);
-	chn->rx += 1000 * (c[3] & 0x0FU);
-	chn->rx += 100 * ((c[4] & 0xF0U)>>4);
-	chn->rx += 10 * (c[4] & 0x0FU);
+	chn->rx += 100 * 1000 * (c[2] & 0x0fU);
+	chn->rx += 10 * 1000 * ((c[3] & 0xf0U)>>4);
+	chn->rx += 1000 * (c[3] & 0x0fU);
+	chn->rx += 100 * ((c[4] & 0xf0U)>>4);
+	chn->rx += 10 * (c[4] & 0x0fU);
 	if (c[2] & 0x80U) chn->rx += 5;
 
 	switch (c[1] & 0x07U) {
 	case 0x02U: chn->offset = -1; break;
 	case 0x03U: chn->offset = +1; break;
 	case 0x04U: // separate transmit frequency
-	    chn->tx += 100 * 1000 * (c[6] & 0x0FU);
-	    chn->tx += 10 * 1000 * ((c[7] & 0xF0U)>>4);
-	    chn->tx += 1000 * (c[7] & 0x0FU);
-	    chn->tx += 100 * ((c[8] & 0xF0U)>>4);
-	    chn->tx += 10 * (c[8] & 0x0FU);
+	    chn->tx += 100 * 1000 * (c[6] & 0x0fU);
+	    chn->tx += 10 * 1000 * ((c[7] & 0xf0U)>>4);
+	    chn->tx += 1000 * (c[7] & 0x0fU);
+	    chn->tx += 100 * ((c[8] & 0xf0U)>>4);
+	    chn->tx += 10 * (c[8] & 0x0fU);
 	    if (c[6] & 0x80U) chn->tx += 5;
 	}
 
 	// c[5] & 0x0FU ?
-	chn->sql = (c[5] & 0xF0U) >> 4;
+	chn->sql = (c[5] & 0xf0U) >> 4;
 	chn->tone = c[9] & 0x1fU;
 	chn->dcs = c[10] & 0x0fU;
+
+	// c[11] & 0x80U seems only set for bank 2
+	// c[11] & 0x0fU seems always set
+	// c[13] & 0xffU seems to be offset size
 
 	chn->power = (c[9] & 0xc0U) >> 6;
 
@@ -124,7 +128,6 @@ void channel2xml(
 
 	if (chn->tag.length()) {
 		std::string safe(xmlsafe(chn->tag));
-		cout << TAB TAB << "<name>" << safe << "</name>" << endl;
 		cout << TAB TAB << "<tag>" << safe << "</tag>" << endl;
 	}
 

@@ -55,7 +55,7 @@ static void encodeChannel(
 	if (c->band) {
 		dbuf[0] |= 0x07U & (c->band-1);
 
-	} else if (c->rx > 400*1000) {
+	} else if (c->rx > 300*1000) {
 		dbuf[0] |= 0x03U; /* UHF */
 
 	} else {
@@ -70,19 +70,19 @@ static void encodeChannel(
 	    }
 	    x /= 10;
 	    rem = x % 10;
-	    dbuf[4] |= 0x0F & rem;		// 10Hz
+	    dbuf[4] |= 0x0fU & rem;		// 10Hz
 	    x /= 10;
 	    rem = x % 10;
-	    dbuf[4] |= 0xF0 & (rem<<4); // 100Hz
+	    dbuf[4] |= 0xf0U & (rem<<4); // 100Hz
 	    x /= 10;
 	    rem = x % 10;
-	    dbuf[3] |= 0x0F & rem;		// Mhz
+	    dbuf[3] |= 0x0fU & rem;		// Mhz
 	    x /= 10;
 	    rem = x % 10;
-	    dbuf[3] |= 0xF0 & (rem<<4); // 10Mhz
+	    dbuf[3] |= 0xf0U & (rem<<4); // 10Mhz
 	    x /= 10;
 	    rem = x % 10;
-	    dbuf[2] |= 0x0F & rem;		// 100Mhz
+	    dbuf[2] |= 0x0fU & rem;		// 100Mhz
 	}
 
 	if (c->tx) {
@@ -93,19 +93,19 @@ static void encodeChannel(
 	    }
 	    x /= 10;
 	    rem = x % 10;
-	    dbuf[8] |= 0x0FU & rem;		// 10Hz
+	    dbuf[8] |= 0x0fU & rem;		// 10Hz
 	    x /= 10;
 	    rem = x % 10;
-	    dbuf[8] |= 0xF0U & (rem<<4); // 100Hz
+	    dbuf[8] |= 0xf0U & (rem<<4); // 100Hz
 	    x /= 10;
 	    rem = x % 10;
-	    dbuf[7] |= 0x0FU & rem;		// Mhz
+	    dbuf[7] |= 0x0fU & rem;		// Mhz
 	    x /= 10;
 	    rem = x % 10;
-	    dbuf[7] |= 0xF0U & (rem<<4); // 10Mhz
+	    dbuf[7] |= 0xf0U & (rem<<4); // 10Mhz
 	    x /= 10;
 	    rem = x % 10;
-	    dbuf[6] |= 0x0FU & rem;		// 100Mhz
+	    dbuf[6] |= 0x0fU & rem;		// 100Mhz
 
 		dbuf[1] |= 0x04U;
 
@@ -117,10 +117,12 @@ static void encodeChannel(
 	}
 
 	dbuf[1] |= 0x70U & (c->mode << 4);
-	dbuf[5] |= 0xF0U & (c->sql << 4);
+	dbuf[5] |= 0xf0U & (c->sql << 4);
 	dbuf[9] |= 0xc0U & (c->power << 6);
 	dbuf[9] |= 0x1fU & c->tone;
 	dbuf[10] |= 0x1fU & c->dcs;
+	dbuf[11] |= (c->bank < 2) ? 0x8fU : 0x0fU;
+	dbuf[13] |= (c->rx > 300*1000) ? 0x64U : 0x0cU;	// offset size
 
 	dbuf[0] |= 0x80U; // programmed 
 }
@@ -238,6 +240,8 @@ static Channel * parseChannel(
 
 		} else if (!strcmp((const char *)cur->name, "tone")) {
 			long l = strtol(str, NULL, 10);
+			c->tone=-1;
+
 			switch (l) {
 			case 67: c->tone = 0; break;
 			case 69: c->tone = 1; break;
@@ -245,7 +249,7 @@ static Channel * parseChannel(
 			case 74: c->tone = 3; break;
 			case 77: c->tone = 4; break;
 			case 79: c->tone = 5; break;
-			case 82: c->tone = 8; break;
+			case 82: c->tone = 6; break;
 			case 85: c->tone = 7; break;
 			case 88: c->tone = 8; break;
 			case 91: c->tone = 9; break;
@@ -285,10 +289,10 @@ static Channel * parseChannel(
 				cerr << TAB "Bad tone: " << str << endl;
 			}
 
-			if (c->tone) {
-				cout << TAB "tone=" << tones[c->tone] << " (" << c->tone << ")" << endl;
-				assert(!strncmp(str, tones[c->tone], strlen(str)));
+			if (c->tone < 0) {
+				c->tone = 12;
 			}
+			cout << TAB "tone=" << tones[c->tone] << " (" << c->tone << ")" << endl;
 
 		} else if (!strcmp((const char *)cur->name, "dcs")) {
 			for (int i=1; dcsCodes[i]; i++) {
