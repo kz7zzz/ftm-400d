@@ -47,15 +47,15 @@ static Channel * decodeChannel(
 	if (c[2] & 0x80U) chn->rx += 5;
 
 	switch (c[1] & 0x07U) {
-	case 0x02U: chn->offset = -1; break;
-	case 0x03U: chn->offset = +1; break;
+	case 0x02U: chn->duplex = -1; break;
+	case 0x03U: chn->duplex = +1; break;
 	case 0x04U: // separate transmit frequency
-	    chn->tx += 100 * 1000 * (c[6] & 0x0fU);
-	    chn->tx += 10 * 1000 * ((c[7] & 0xf0U)>>4);
-	    chn->tx += 1000 * (c[7] & 0x0fU);
-	    chn->tx += 100 * ((c[8] & 0xf0U)>>4);
-	    chn->tx += 10 * (c[8] & 0x0fU);
-	    if (c[6] & 0x80U) chn->tx += 5;
+		chn->tx += 100 * 1000 * (c[6] & 0x0fU);
+		chn->tx += 10 * 1000 * ((c[7] & 0xf0U)>>4);
+		chn->tx += 1000 * (c[7] & 0x0fU);
+		chn->tx += 100 * ((c[8] & 0xf0U)>>4);
+		chn->tx += 10 * (c[8] & 0x0fU);
+		if (c[6] & 0x80U) chn->tx += 5;
 	}
 
 	// c[5] & 0x0FU ?
@@ -65,7 +65,11 @@ static Channel * decodeChannel(
 
 	// c[11] & 0x80U seems only set for bank 1
 	// c[11] & 0x0fU seems always set
-	// c[12]/c[13] is offset size in 50mhz steps (see ftm-import.C)
+
+	if (chn->duplex) {
+		// chn->offset = (0x07U & c[12]) << 8;
+		chn->offset += c[13] * 50;
+	}
 
 	chn->power = (c[9] & 0xc0U) >> 6;
 
@@ -102,17 +106,24 @@ void channel2xml(
 		cout << TAB TAB << "<txFrequency>" << chn->tx / 1000 << "."
 			<< setfill('0') << setw(3) << chn->tx % 1000 << "</txFrequency>" << endl;
 
-	} else if (chn->offset) {
-		if (chn->offset > 0) {
-			cout << TAB TAB << "<offset>+</offset>" << endl;
+	} else if (chn->duplex && chn->offset) {
+		cout << TAB TAB << "<offset>";
+		if (chn->duplex > 0) {
+			cout << "+";
 		} else {
-			cout << TAB TAB << "<offset>-</offset>" << endl;
+			cout << "-";
 		}
+		cout << chn->offset/1000;
+		if (chn->offset%1000) {
+			cout << ".";
+			cout << setfill('0') << setw(3) << chn->offset%1000;
+		}
+		cout << "</offset>" << endl;
 	}
 
 	if (chn->sql) {
-	    cout << TAB TAB << "<sql>" << sqls[chn->sql] << "</sql>" << endl;
-	    cout << TAB TAB << "<tone>" << tones[chn->tone] << "</tone>" << endl;
+		cout << TAB TAB << "<sql>" << sqls[chn->sql] << "</sql>" << endl;
+		cout << TAB TAB << "<tone>" << tones[chn->tone] << "</tone>" << endl;
 	}
 
 	if (chn->dcs) {
@@ -120,11 +131,10 @@ void channel2xml(
 	}
 
 	if (chn->mode) {
-	    cout << TAB TAB << "<mode>" << modes[chn->mode] << "</mode>" << endl;
-    }
+		cout << TAB TAB << "<mode>" << modes[chn->mode] << "</mode>" << endl;
+	}
 
 	cout << TAB TAB << "<power>" << powers[chn->power] << "</power>" << endl;
-
 
 	if (chn->tag.length()) {
 		std::string safe(xmlsafe(chn->tag));

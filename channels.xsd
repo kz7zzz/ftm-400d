@@ -39,12 +39,12 @@
     </xs:simpleType>
 
     <xs:simpleType name="offset">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="+"/>
-            <xs:enumeration value="-"/>
+        <xs:restriction base="xs:decimal">
+            <xs:minExclusive value="-100"/>
+            <xs:maxExclusive value="100"/>
         </xs:restriction>
-    </xs:simpleType>
-    
+	</xs:simpleType>
+
     <xs:simpleType name="sql">
         <xs:restriction base="xs:string">
             <xs:enumeration value="noise"/>
@@ -258,7 +258,7 @@
                 </xs:element>
                 <xs:element name="offset" type="offset" minOccurs="0">
                     <xs:annotation>
-                        <xs:documentation>+ or -</xs:documentation>
+                        <xs:documentation>Offset in Mhz</xs:documentation>
                     </xs:annotation>
                 </xs:element>
                 <xs:element name="sql" type="sql" minOccurs="0">

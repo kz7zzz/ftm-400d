@@ -63,56 +63,56 @@ static void encodeChannel(
 	}
 
 	{
-	    unsigned x = c->rx;
-	    unsigned rem = x % 10;
-	    if (rem >=  5) {
-		    dbuf[2] |= 0x80U;		// 5Hz
-	    }
-	    x /= 10;
-	    rem = x % 10;
-	    dbuf[4] |= 0x0fU & rem;		// 10Hz
-	    x /= 10;
-	    rem = x % 10;
-	    dbuf[4] |= 0xf0U & (rem<<4); // 100Hz
-	    x /= 10;
-	    rem = x % 10;
-	    dbuf[3] |= 0x0fU & rem;		// Mhz
-	    x /= 10;
-	    rem = x % 10;
-	    dbuf[3] |= 0xf0U & (rem<<4); // 10Mhz
-	    x /= 10;
-	    rem = x % 10;
-	    dbuf[2] |= 0x0fU & rem;		// 100Mhz
+		unsigned x = c->rx;
+		unsigned rem = x % 10;
+		if (rem >=  5) {
+			dbuf[2] |= 0x80U;		// 5Hz
+		}
+		x /= 10;
+		rem = x % 10;
+		dbuf[4] |= 0x0fU & rem;		// 10Hz
+		x /= 10;
+		rem = x % 10;
+		dbuf[4] |= 0xf0U & (rem<<4);// 100Hz
+		x /= 10;
+		rem = x % 10;
+		dbuf[3] |= 0x0fU & rem;		// Mhz
+		x /= 10;
+		rem = x % 10;
+		dbuf[3] |= 0xf0U & (rem<<4);// 10Mhz
+		x /= 10;
+		rem = x % 10;
+		dbuf[2] |= 0x0fU & rem;		// 100Mhz
 	}
 
 	if (c->tx) {
-	    unsigned x = c->tx;
-	    unsigned rem = x % 10;
-	    if (rem >=  5) {
-		    dbuf[6] |= 0x80U;		// 5Hz
-	    }
-	    x /= 10;
-	    rem = x % 10;
-	    dbuf[8] |= 0x0fU & rem;		// 10Hz
-	    x /= 10;
-	    rem = x % 10;
-	    dbuf[8] |= 0xf0U & (rem<<4); // 100Hz
-	    x /= 10;
-	    rem = x % 10;
-	    dbuf[7] |= 0x0fU & rem;		// Mhz
-	    x /= 10;
-	    rem = x % 10;
-	    dbuf[7] |= 0xf0U & (rem<<4); // 10Mhz
-	    x /= 10;
-	    rem = x % 10;
-	    dbuf[6] |= 0x0fU & rem;		// 100Mhz
+		unsigned x = c->tx;
+		unsigned rem = x % 10;
+		if (rem >=  5) {
+			dbuf[6] |= 0x80U;		// 5Hz
+		}
+		x /= 10;
+		rem = x % 10;
+		dbuf[8] |= 0x0fU & rem;		// 10Hz
+		x /= 10;
+		rem = x % 10;
+		dbuf[8] |= 0xf0U & (rem<<4);// 100Hz
+		x /= 10;
+		rem = x % 10;
+		dbuf[7] |= 0x0fU & rem;		// Mhz
+		x /= 10;
+		rem = x % 10;
+		dbuf[7] |= 0xf0U & (rem<<4);// 10Mhz
+		x /= 10;
+		rem = x % 10;
+		dbuf[6] |= 0x0fU & rem;		// 100Mhz
 
 		dbuf[1] |= 0x04U;
 
-	} else if (c->offset > 0) {
+	} else if (c->duplex > 0) {
 		dbuf[1] |= 0x03U; // +
 
-	} else if (c->offset < 0) {
+	} else if (c->duplex < 0) {
 		dbuf[1] |= 0x02U; // -
 	}
 
@@ -121,7 +121,9 @@ static void encodeChannel(
 	dbuf[9] |= 0xc0U & (c->power << 6);
 	dbuf[9] |= 0x1fU & c->tone;
 	dbuf[10] |= 0x1fU & c->dcs;
-	dbuf[11] |= (c->bank < 2) ? 0x8fU : 0x0fU;
+
+	dbuf[11] |= 0x0fU;
+	if (c->bank < 2) dbuf[11] |= 0x80U;
 
 	// offset size in 50khz steps, hence
 	//		0x64 * 50khz = 5000mhz
@@ -130,7 +132,13 @@ static void encodeChannel(
 	// that's 0-2000 (0x7CF) steps
 	//
 	// values here are good for the US, YMMV.
-	dbuf[13] |= (c->rx > 300*1000) ? 0x64U : 0x0cU;
+	if (c->duplex && !c->tx) {
+		unsigned offset = c->offset/50;
+		dbuf[13] |= 0xFF & offset;
+		// range is 0 - 0x7EFU
+		// need to confirm where top bits go
+		// dbuf[14] |= 0x07 & (offset >> 8);
+	}
 
 	dbuf[0] |= 0x80U; // programmed 
 }
@@ -167,7 +175,8 @@ static Channel * parseChannel(
 			continue;
 		}
 		if (cur->ns != ns) {
-			cerr << TAB "Skipping " << cur->name << " ns=" << (cur->ns ? (const char *)cur->ns->href : "<empty>") << endl;
+			cerr << TAB "Skipping " << cur->name
+				<< " ns=" << (cur->ns ? (const char *)cur->ns->href : "<empty>") << endl;
 			continue;
 		}
 
@@ -187,18 +196,15 @@ static Channel * parseChannel(
 		} else if (!strcmp((const char *)cur->name, "frequency")) {
 			char *p = NULL;
 			long l = strtol(str, &p, 10);
+			c->rx = l*1000;
+
 			if (p && *p == '.') {
 				const static int m[3] = {100, 10, 1};
-				c->rx = l*1000;
-				l = 0;
 				p++;
 				for (int i=0; i<3; ++i) {
 					if (!p[i]) break;
 					c->rx += m[i] * (p[i] - '0');
 				}
-
-			} else {
-				c->rx = l;
 			}
 
 			cout << TAB "rx=" << c->rx << endl;
@@ -206,32 +212,51 @@ static Channel * parseChannel(
 		} else if (!strcmp((const char *)cur->name, "txFrequency")) {
 			char *p = NULL;
 			long l = strtol(str, &p, 10);
+			c->tx = l*1000;
 			if (p && *p == '.') {
 				const static int m[3] = {100, 10, 1};
-				c->tx = l*1000;
-				l = 0;
 				p++;
 				for (int i=0; i<3; ++i) {
 					if (!p[i]) break;
 					c->tx += m[i] * (p[i] - '0');
 				}
-
-			} else {
-				c->tx = l;
 			}
 
 			cout << TAB "tx=" << c->tx << endl;
 
 		} else if (!strcmp((const char *)cur->name, "offset")) {
-			switch (*str) {
-			case '-':
-				c->offset = -1;
-				break;
-			case '+':
-				c->offset = +1;
-				break;
+			if (!strcmp(str, "+")) {
+				c->duplex = +1;
+				cout << TAB "offset=" << "+" << endl;
+
+			} else if (!strcmp(str, "-")) {
+				c->duplex = -1;
+				cout << TAB "offset=" << "-" << endl;
+
+			} else {
+				c->duplex = +1;
+				if (*str == '-') {
+					c->duplex=-1;
+					++str;
+
+				} else if (*str == '+') {
+					++str;
+				}
+				char *p = NULL;
+				long l = strtol(str, &p, 10);
+				c->offset = l*1000;
+				if (p && *p == '.') {
+					const static int m[3] = {100, 10, 1};
+					p++;
+					for (int i=0; i<3; ++i) {
+						if (!p[i]) break;
+						c->offset += m[i] * (p[i] - '0');
+					}
+				}
+
+				cout << TAB "offset=" << (c->offset > 0 ? "+" : "-") << c->offset << endl;
 			}
-			cout << TAB "offset=" << c->offset << endl;
+
 
 		} else if (!strcmp((const char *)cur->name, "sql")) {
 			for (int i=1; sqls[i]; i++) {
@@ -336,12 +361,12 @@ static Channel * parseChannel(
 
 		} else if (!strcmp((const char *)cur->name, "name") && str) {
 			if (c->tag.empty()) {
-			    c->tag = str;
-			    if (c->tag.length() > Channel::TAG_SIZE) c->tag.resize(Channel::TAG_SIZE);
-			    cout << TAB "name=" << c->tag << endl;
+				c->tag = str;
+				if (c->tag.length() > Channel::TAG_SIZE) c->tag.resize(Channel::TAG_SIZE);
+				cout << TAB "name=" << c->tag << endl;
 
 			} else {
-			    cout << TAB "name ignored (have tag)" << endl;
+				cout << TAB "name ignored (have tag)" << endl;
 			}
 
 		} else if (!strcmp((const char *)cur->name, "tag") && str) {
@@ -361,6 +386,15 @@ static Channel * parseChannel(
 				cerr << TAB "Bad scan: " << str << endl;
 			}
 			cout << TAB "scan=" << c->scan << endl;
+		}
+	}
+
+	if (c->duplex && !c->offset) {
+		// use US defaults
+		if (c->rx > 300) {
+			c->offset = 5000;
+		} else {
+			c->offset = 600;
 		}
 	}
 
@@ -393,11 +427,13 @@ static void processDoc(
 			continue;
 		}
 		if (node->ns != ns) {
-			cerr << "Skipping " << node->name << " ns=" << (node->ns ? (const char *)node->ns->href : "<empty>") << endl;
+			cerr << "Skipping " << node->name
+				<< " ns=" << (node->ns ? (const char *)node->ns->href : "<empty>") << endl;
 			continue;
 		}
 		if (strcmp((const char *)node->name, "channel")) {
-			cerr << "Skipping " << node->name << " ns=" << (node->ns ? (const char *)node->ns->href : "<empty>") << endl;
+			cerr << "Skipping " << node->name
+				<< " ns=" << (node->ns ? (const char *)node->ns->href : "<empty>") << endl;
 			continue;
 		}
 

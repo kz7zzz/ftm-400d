@@ -18,9 +18,10 @@ public:
 	int slot;
 
 	int band;
-	int rx;		// in hz
-	int tx;		// in hz
-	int offset; // 0, -1, +1
+	int rx;		// in khz
+	int tx;		// in khz
+	int duplex; // 0, -1, +1
+	int offset; // in khz
 	int sql;
 	int tone;
 	int dcs;
@@ -35,6 +36,7 @@ public:
 		band(0),
 		rx(0),
 		tx(0),
+		duplex(0),
 		offset(0),
 		sql(0),
 		tone(0),

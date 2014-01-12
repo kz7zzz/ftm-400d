@@ -27,13 +27,17 @@ int main(int argc, char *argv[])
 
 	for (x = 0; x < 256; x++) {
 		if (a2d[x] && (d2a[a2d[x]] != x)) {
-			cerr << "ASCII: 0x" << std::hex << x << " -> YCHAR 0x" << (unsigned)a2d[x] << " reversed to 0x" << (unsigned)d2a[a2d[x]] << endl;
+			cerr << "ASCII: 0x" << std::hex << x
+				<< " -> YCHAR 0x" << (unsigned)a2d[x]
+				<< " reversed to 0x" << (unsigned)d2a[a2d[x]] << endl;
 		}
 	}
 
 	for (x = 0; x < 256; x++) {
 		if (d2a[x] && (a2d[d2a[x]] != x)) {
-			cerr << "YCHAR: 0x" << std::hex << x << " -> ASCII 0x" << (unsigned)d2a[x] << " reversed to 0x" << (unsigned)a2d[d2a[x]] << endl;
+			cerr << "YCHAR: 0x" << std::hex << x
+				<< " -> ASCII 0x" << (unsigned)d2a[x]
+				<< " reversed to 0x" << (unsigned)a2d[d2a[x]] << endl;
 		}
 	}
 
@@ -42,15 +46,9 @@ int main(int argc, char *argv[])
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"`0123456789-=[]\\;',./"
 		"~!@#$%^&*()_+{}|:\"<>?"
-		"\u2191"
-		"\u2193"
-		"\u2192"
-		"\u2190"
-		"\u00B1"
-		"\u266a"
+		"\u2191" "\u2193" "\u2192" "\u2190" "\u00B1" "\u266a"
 		" "
-		"\u00A5"
-		"\u2219"
+		"\u00A5" "\u2219"
 	);
 
 	const unsigned char data[] = 
@@ -60,15 +58,9 @@ int main(int argc, char *argv[])
 		"\x20\x21\x22\x23\x59\xbf\x01\x02\x03\x04\x05\x06\x07\x08\x09\x4a"
 		"\x50\x54\x56\x55\x4e\x44\x49\x4b\x4c\x5d\x3e\x53\x40\x41\x42\x57"
 		"\x43\x47\x45\x46\x58\x48\x5a\x5c\x5b\x4d\x3f\x4f\x51\x52"
-		"\x5e"
-		"\x5f"
-		"\x60"
-		"\x61"
-		"\x62"
-		"\x63"
+		"\x5e" "\x5f" "\x60" "\x61" "\x62" "\x63"
 		"\x64"
-		"\xb7"
-		"\xb8"
+		"\xb7" "\xb8"
 		;
 
 	size_t datalen=sizeof(data)-1;

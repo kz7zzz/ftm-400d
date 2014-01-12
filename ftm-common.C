@@ -25,30 +25,14 @@
 using namespace std;
 
 const char * sqls[] = {
-	"noise",
-	"T-TX",
-	"T-TRX",
-	"T-REV",
-	"D-TRX",
-	"program",
-	"pager",
-	"D-TX",
-	"TT/DR",
-	"DT/TR",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
+	"noise", "T-TX", "T-TRX", "T-REV",
+	"D-TRX", "program", "pager", "D-TX",
+	"TT/DR", "DT/TR", NULL, NULL,
+	NULL, NULL, NULL, NULL,
 };
 
 const char * scans[] = {
-	"",
-	"skip",
-	"select",
-	"unknown",
-	NULL
+	"", "skip", "select", "unknown", NULL
 };
 
 // symbols supported.  (note: # is used as a fill character here (not the radio))

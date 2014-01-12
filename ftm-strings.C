@@ -54,11 +54,11 @@ int main(int argc, char *argv[])
 	for (size_t i=0; i<datalen; ++i) {
 		unsigned char c = data[i];
 		unsigned char a = d2a[c];
-		if ((i < 0x0200 || i >= 0x42B0) && a) {
-			if (a < 0x80) {
+		if ((i < 0x0200U || i >= 0x42B0U) && a) {
+			if (a < 0x80U) {
 				s.append(1, a);
 			} else {
-				s.append(utf8[a - 0x80]);
+				s.append(utf8[a - 0x80U]);
 			}
 			n++;
 

@@ -82,7 +82,7 @@
 	<channel slot="26">
 		<band>VHF</band>
 		<frequency>145.430</frequency>
-		<offset>-</offset>
+		<offset>-0.6</offset>
 		<tag>offset-</tag>
 	</channel>
 	<channel slot="27">
@@ -93,7 +93,7 @@
 	<channel slot="28">
 		<band>VHF</band>
 		<frequency>147.270</frequency>
-		<offset>+</offset>
+		<offset>+0.600</offset>
 		<tag>offset+</tag>
 	</channel>
 	<channel slot="29">
@@ -104,7 +104,7 @@
 	<channel slot="30">
 		<band>UHF</band>
 		<frequency>449.650</frequency>
-		<offset>-</offset>
+		<offset>-5</offset>
 		<tag>offset-</tag>
 	</channel>
 	<channel slot="31">
@@ -115,7 +115,7 @@
 	<channel slot="32">
 		<band>UHF</band>
 		<frequency>441.250</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<tag>offset+</tag>
 	</channel>
 	
@@ -172,13 +172,13 @@
 	<channel slot="41">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<tag>no SQL</tag>
 	</channel>
 	<channel slot="42">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>T-TX</sql>
 		<tone>67.0</tone>
 		<tag>PL 67.0</tag>
@@ -186,7 +186,7 @@
 	<channel slot="43">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>T-TX</sql>
 		<tone>85.4</tone>
 		<tag>PL 85.4</tag>
@@ -194,7 +194,7 @@
 	<channel slot="44">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>T-TX</sql>
 		<tone>100.0</tone>
 		<tag>PL 100.0</tag>
@@ -202,7 +202,7 @@
 	<channel slot="45">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>T-TX</sql>
 		<tone>123</tone>
 		<tag>PL 123.0</tag>
@@ -210,7 +210,7 @@
 	<channel slot="46">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>T-TX</sql>
 		<tone>151.4</tone>
 		<tag>PL 151.4</tag>
@@ -218,7 +218,7 @@
 	<channel slot="47">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>T-TX</sql>
 		<tone>203.5</tone>
 		<tag>PL 203.5</tag>
@@ -226,7 +226,7 @@
 	<channel slot="48">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>T-TX</sql>
 		<tone>254.1</tone>
 		<tag>PL 254.1</tag>
@@ -236,13 +236,13 @@
 	<channel slot="49">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<tag>no DCS</tag>
 	</channel>
 	<channel slot="50">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>D-TRX</sql>
 		<dcs>023</dcs>
 		<tag>DCS 023</tag>
@@ -250,7 +250,7 @@
 	<channel slot="51">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>D-TRX</sql>
 		<dcs>131</dcs>
 		<tag>DCS 131</tag>
@@ -258,7 +258,7 @@
 	<channel slot="52">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>D-TRX</sql>
 		<dcs>244</dcs>
 		<tag>DCS 244</tag>
@@ -266,7 +266,7 @@
 	<channel slot="53">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>D-TRX</sql>
 		<dcs>315</dcs>
 		<tag>DCS 315</tag>
@@ -274,7 +274,7 @@
 	<channel slot="54">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>D-TRX</sql>
 		<dcs>503</dcs>
 		<tag>DCS 503</tag>
@@ -282,7 +282,7 @@
 	<channel slot="55">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>D-TRX</sql>
 		<dcs>632</dcs>
 		<tag>DCS 632</tag>
@@ -290,7 +290,7 @@
 	<channel slot="56">
 		<band>UHF</band>
 		<frequency>444.440</frequency>
-		<offset>+</offset>
+		<offset>+5</offset>
 		<sql>D-TRX</sql>
 		<dcs>754</dcs>
 		<tag>DCS 754</tag>
