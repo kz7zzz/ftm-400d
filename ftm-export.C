@@ -63,9 +63,9 @@ static Channel * decodeChannel(
 	chn->tone = c[9] & 0x1fU;
 	chn->dcs = c[10] & 0x0fU;
 
-	// c[11] & 0x80U seems only set for bank 2
+	// c[11] & 0x80U seems only set for bank 1
 	// c[11] & 0x0fU seems always set
-	// c[13] & 0xffU seems to be offset size
+	// c[12]/c[13] is offset size in 50mhz steps (see ftm-import.C)
 
 	chn->power = (c[9] & 0xc0U) >> 6;
 

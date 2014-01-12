@@ -122,7 +122,15 @@ static void encodeChannel(
 	dbuf[9] |= 0x1fU & c->tone;
 	dbuf[10] |= 0x1fU & c->dcs;
 	dbuf[11] |= (c->bank < 2) ? 0x8fU : 0x0fU;
-	dbuf[13] |= (c->rx > 300*1000) ? 0x64U : 0x0cU;	// offset size
+
+	// offset size in 50khz steps, hence
+	//		0x64 * 50khz = 5000mhz
+	// 		0x0c * 50khz = 600mhz
+	// may bleed into c[12] as manual says range is 0 - 99.95mhz,
+	// that's 0-2000 (0x7CF) steps
+	//
+	// values here are good for the US, YMMV.
+	dbuf[13] |= (c->rx > 300*1000) ? 0x64U : 0x0cU;
 
 	dbuf[0] |= 0x80U; // programmed 
 }
