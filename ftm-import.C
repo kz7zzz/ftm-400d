@@ -1,4 +1,4 @@
-// Copyright 2014, Kurt Zeilenga. All rights reserved.
+// Copyright 2014-2016, Kurt Zeilenga. All rights reserved.
 //
 // Permission to use, copy, modify, and/or distribute this software
 // for any purpose with or without fee is hereby granted, provided
@@ -11,20 +11,19 @@
 // Yaesu FTM 400dr memory dump to XML program
 //
 
-#include <stdlib.h>
 #include <memory>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <memory>
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-#include <assert.h>
-#include <string.h>
+#include <cstdlib>
+#include <cassert>
+#include <cstring>
 
 #include "ftm.h"
 

@@ -1,4 +1,4 @@
-// Copyright 2014, Kurt Zeilenga. All rights reserved.
+// Copyright 2014-2016, Kurt Zeilenga. All rights reserved.
 //
 // Permission to use, copy, modify, and/or distribute this software
 // for any purpose with or without fee is hereby granted, provided
@@ -11,11 +11,12 @@
 // Yaesu FTM 400dr memory sting dump
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <memory>
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 
 #include "ftm.h"
 

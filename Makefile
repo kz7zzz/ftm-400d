@@ -1,4 +1,4 @@
-# Copyright 2014, Kurt Zeilenga. All rights reserved.
+# Copyright 2014-2016, Kurt Zeilenga. All rights reserved.
 #
 # Permission to use, copy, modify, and/or distribute this software
 # for any purpose with or without fee is hereby granted, provided
